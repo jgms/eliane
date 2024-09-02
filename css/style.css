@@ -1,0 +1,151 @@
+*{
+    margin:0;
+    padding:0;
+}
+body{
+    display:flex;
+    background-color:#111;
+    font-family:monospace;
+}
+textarea{
+    background-color:#222;
+    border:none;
+    resize:none;
+    display: block;
+    padding:30px 20px 30px 50px;
+    width:calc(85% - 70px);
+    height:calc(100vh - 60px);
+    font-family:monospace;
+    color:#eee;
+    font-size:1.2em;
+}
+.font-size{
+    position:fixed;
+    top:0;
+    left:0;
+    width:40px;
+}
+.font-size button{
+    -webkit-appearance:none;
+    appearance:none;
+    display:block;
+    width:100%;
+    background-color:transparent;
+    border:none;
+    color:white;
+    padding:6px 0;
+    font-family:monospace;
+    font-size:1.5em;
+    cursor:pointer;
+}
+.right-panel{
+    padding:20px;
+    width:calc(15% - 40px);
+    height:calc(100vh - 40px);
+    display:flex;
+    flex-direction:column;
+    justify-content: space-between;
+}
+.info{
+    min-height:20vh;
+    text-align:right;
+}
+.info h1{
+    font-family: "Xanh Mono", monospace;
+    font-weight: 400;
+    font-style: italic;
+    color:white;
+}
+.info a{
+    display:inline-block;
+    margin-top:10px;
+    color:blue;
+}
+
+.info p{
+    text-align:left;
+    padding-top:10px;
+    color:#ddd;
+}
+.info .error{
+    color:#f00;
+}
+.buttons{
+    display:flex;
+    justify-content: space-between;
+}
+.buttons button{
+    -webkit-appearance:none;
+    appearance:none;
+    display:block;
+    background-color:transparent;
+    border:2px solid white;
+    color:white;
+    border-radius:10px;
+    width:45%;
+    padding:20px 0;
+    font-family:monospace; 
+    cursor:pointer;
+    transition: background-color 0.5s;
+}
+.buttons button:hover{
+    background-color:#222;
+}
+.meters{
+    display: flex;
+    justify-content: space-between;
+}
+.meter{
+    width:calc(45% - 20px);
+    height:320px;
+    padding:10px;
+    border:1px dashed #eee;
+    display:flex;
+    flex-direction: column-reverse;
+}
+.meter div{
+    flex-basis: calc(275px / 10); /*320px - 45px(margin top in every div from the second on) --> 275px*/
+    background-color:#0f0;
+    opacity:0;
+}
+.meter div.visible{
+    opacity:1;
+}
+.meter div:not(:last-child){
+    margin-top:5px;
+}
+.meter div:nth-child(7),
+.meter div:nth-child(8){
+    background-color:#ff0;
+}
+.meter div:nth-child(9),
+.meter div:nth-child(10){
+    background-color:#f00;
+}
+.mobile{
+    display:none;
+    color:white;
+    font-size:1.5em;
+}
+.mobile span{
+    font-family: "Xanh Mono", monospace;
+    font-style: italic;
+}
+
+@media screen and (max-width: 900px){
+    body{
+        height:100vh;
+        display:flex;
+        justify-content:center;
+        align-items: center;
+    }
+    textarea{
+        display:none;
+    }
+    .right-panel{
+        display:none;
+    }
+    .mobile{
+        display: block;
+    }
+}
