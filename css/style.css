@@ -139,9 +139,8 @@ textarea{
         justify-content:center;
         align-items: center;
     }
-    textarea{
-        display:none;
-    }
+    textarea,
+    .font-size,
     .right-panel{
         display:none;
     }
