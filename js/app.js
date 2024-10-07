@@ -1,10 +1,6 @@
 //UI user mechanics go here
 
-let example = examples[Math.floor(Math.random() * examples.length)];
-
-textArea.value = example;
-
-playButton.addEventListener("click", () => {
+function startPlaying(){
     errorLog.classList.remove("error");
     errorLog.innerText = "Welcome to éliane! just press play to execute the silly example on the left, or check the docs to make your own music.";
     try{
@@ -18,15 +14,23 @@ playButton.addEventListener("click", () => {
         let errorMsg = errorSplit[1].trim() + ( errorSplit[2] ? `:${errorSplit[2]}` : "" );
         errorLog.innerText = errorMsg;
     }
-});
+}
 
-stopButton.addEventListener("click", () => {
+function stopPlaying(){
     let test = setTimeout(() => {},1);//the cleanest hack in the history of the interwebz!!! ..blame audio context's resume/suspend antics
 
     for(let i = 0; i <= test; i++){
         clearTimeout(i);//oh yes =)
     }
-});
+}
+
+let example = examples[Math.floor(Math.random() * examples.length)];
+
+textArea.value = example;
+
+playButton.addEventListener("click", startPlaying);
+
+stopButton.addEventListener("click", stopPlaying);
 
 let fontSize = 1.2;
 zoomButtons.forEach((button,i) => {
@@ -38,4 +42,25 @@ zoomButtons.forEach((button,i) => {
         }
         textArea.style.fontSize = fontSize + "em";
     });
+});
+
+//keyboard stuff
+window.addEventListener("keyup", event => {    
+    switch(event.keyCode){
+        case 65://a
+            if(event.shiftKey){
+                textArea.select();
+            }
+        break;
+        case 82://r
+            if(event.shiftKey){
+                startPlaying();
+            }
+        break;
+        case 83://s
+            if(event.shiftKey){
+                stopPlaying();
+            }
+        break;
+    }
 });
