@@ -43,24 +43,3 @@ zoomButtons.forEach((button,i) => {
         textArea.style.fontSize = fontSize + "em";
     });
 });
-
-//keyboard stuff
-window.addEventListener("keyup", event => {    
-    switch(event.keyCode){
-        case 65://a
-            if(event.shiftKey){
-                textArea.select();
-            }
-        break;
-        case 82://r
-            if(event.shiftKey){
-                startPlaying();
-            }
-        break;
-        case 83://s
-            if(event.shiftKey){
-                stopPlaying();
-            }
-        break;
-    }
-});
