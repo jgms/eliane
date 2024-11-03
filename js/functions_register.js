@@ -3,9 +3,10 @@
 /*
 *All functions MUST receive a next event argument(could be NULL) and implement what's explained below
 *The second argument MUST be a destructured object with defauls values, all arguments MUST be numbers
+*the third argument represents the CURRENT bpm, as is given to you by the interpreter and needed by the pulseToSeconds and createEnvelope utility functions, it's up to you to decide if it is of use to you or not...
 
 //function names MUST have at least two words in camel case
-function myFunction(nextEvent, {a = 12, b = 23, c = 23 }){
+function myFunction(nextEvent, {a = 12, b = 23, c = 23 },bpm){
     //the stuff the functions does
     if(nextEvent){//if there's a next event
         nextFunction(nextEvent);//invoke the nextFunction (declared in the globals.js file) to keep the sequence going
@@ -18,15 +19,15 @@ function myFunction(nextEvent, {a = 12, b = 23, c = 23 }){
 /*
  silly_test_synth
     frequency: a number greater than 0 representing the frequency in hertz
-    attack: a number greater or equal to 0 representing the attack time as a multiple of the global BPM
-    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the global BPM
-    release: a number greater or equal to 0 representing the release time as a multiple of the global BPM
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM
     amplitude: a number between 0 and 1 representing the amplitude
     pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum
-    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay
     feedback: a number between 0 and 0.9 to control the delay's feedback
  */
-function sillyTestSynth(nextEvent, {frequency = 100 ,attack = 0, sustain = 0, release = 1, amplitude = 1, pan = 0, delaytime = 0, feedback = 0.5}){
+function sillyTestSynth(nextEvent, {frequency = 100 ,attack = 0, sustain = 0, release = 1, amplitude = 1, pan = 0, delaytime = 0, feedback = 0.5},bpm){
     // initial validations
     if(frequency <= 0){
         throw new Error("'frequency' value for 'silly_test_synth' MUST be greater than 0");
@@ -53,7 +54,7 @@ function sillyTestSynth(nextEvent, {frequency = 100 ,attack = 0, sustain = 0, re
     const osc1 = createOSC(frequency,"sawtooth");//first oscillator
     const osc2 = createOSC(frequency + 0.3,"square");//second detuned oscillator
 
-    const env = createEnvelope(amplitude,attack,sustain,release);//envelope
+    const env = createEnvelope(amplitude,attack,sustain,release,bpm);//envelope
 
 
     const panner = setPan(pan);//panner
@@ -71,8 +72,8 @@ function sillyTestSynth(nextEvent, {frequency = 100 ,attack = 0, sustain = 0, re
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'silly_test_synth' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime) });//delay node
-        delay.delayTime.value = pulseToSeconds(delaytime);//we assign the value
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
         const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
@@ -90,8 +91,8 @@ function sillyTestSynth(nextEvent, {frequency = 100 ,attack = 0, sustain = 0, re
     osc2.start(context.currentTime);
 
     //stop the oscillators
-    osc1.stop(context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
-    osc2.stop(context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
+    osc1.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    osc2.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     
     //mechanism to invoke the next event in the sequence, if there's any
     if(nextEvent){
@@ -103,15 +104,15 @@ function sillyTestSynth(nextEvent, {frequency = 100 ,attack = 0, sustain = 0, re
  simple_wave
     wave: a number representing the waveform --> 0 -> sine, 1 -> triangle, 2 -> square, 3 -> sawtooth
     frequency: a number greater than 0 representing the frequency in hertz
-    attack: a number greater or equal to 0 representing the attack time as a multiple of the global BPM
-    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the global BPM
-    release: a number greater or equal to 0 representing the release time as a multiple of the global BPM
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM
     amplitude: a number between 0 and 1 representing the amplitude
     pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum
-    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay
     feedback: a number between 0 and 0.9 to control the delay's feedback
  */
-function simpleWave(nextEvent, {wave = 0, frequency = 100, attack = 0, sustain = 0, release = 1, amplitude = 1, pan = 0, delaytime = 0, feedback = 0.5}){
+function simpleWave(nextEvent, {wave = 0, frequency = 100, attack = 0, sustain = 0, release = 1, amplitude = 1, pan = 0, delaytime = 0, feedback = 0.5},bpm){
     // initial validations
     if(wave < 0 || wave > 3){
         throw new Error("invalid 'wave' value for 'simple_wave', allowed values: 0 (sine), 1 (triangle), 2 (square) or 3 (sawtooth)");
@@ -142,7 +143,7 @@ function simpleWave(nextEvent, {wave = 0, frequency = 100, attack = 0, sustain =
 
     const oscillator = createOSC(frequency,waves[wave]);//oscillator
 
-    const env = createEnvelope(amplitude,attack,sustain,release);//envelope
+    const env = createEnvelope(amplitude,attack,sustain,release,bpm);//envelope
 
 
     const panner = setPan(pan);//panner
@@ -160,8 +161,8 @@ function simpleWave(nextEvent, {wave = 0, frequency = 100, attack = 0, sustain =
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'simple_wave' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime) });//delay node
-        delay.delayTime.value = pulseToSeconds(delaytime);//we assign the value
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
         const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
@@ -173,7 +174,7 @@ function simpleWave(nextEvent, {wave = 0, frequency = 100, attack = 0, sustain =
 
     oscillator.start(context.currentTime);
 
-    oscillator.stop(context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
+    oscillator.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     
     if(nextEvent){
         nextFunction(nextEvent);
@@ -182,15 +183,15 @@ function simpleWave(nextEvent, {wave = 0, frequency = 100, attack = 0, sustain =
 
 /*
  white_noise
-    attack: a number greater or equal to 0 representing the attack time as a multiple of the global BPM
-    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the global BPM
-    release: a number greater or equal to 0 representing the release time as a multiple of the global BPM
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM
     amplitude: a number between 0 and 1 representing the amplitude
     pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum
-    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay
     feedback: a number between 0 and 0.9 to control the delay's feedback
  */
-function whiteNoise(nextEvent, {attack = 0, sustain = 0, release = 1, amplitude = 1, pan = 0, delaytime = 0, feedback = 0.5}){
+function whiteNoise(nextEvent, {attack = 0, sustain = 0, release = 1, amplitude = 1, pan = 0, delaytime = 0, feedback = 0.5},bpm){
     // initial validations
     if(attack < 0){
         throw new Error("'attack' value for 'white_noise' MUST be greater or equal to 0");
@@ -212,11 +213,11 @@ function whiteNoise(nextEvent, {attack = 0, sustain = 0, release = 1, amplitude 
     }
 
     //we generate the white noise "node", see context_utilities.js for documentation on "generateWhiteNoise" function
-    const whiteNoiseBuffer = generateWhiteNoise(pulseToSeconds(attack + sustain + release));
+    const whiteNoiseBuffer = generateWhiteNoise(pulseToSeconds(attack + sustain + release,bpm));
     const whiteNoiseSource = context.createBufferSource();
     whiteNoiseSource.buffer = whiteNoiseBuffer;
 
-    const env = createEnvelope(amplitude,attack,sustain,release);//envelope
+    const env = createEnvelope(amplitude,attack,sustain,release,bpm);//envelope
 
 
     const panner = setPan(pan);//panner
@@ -233,8 +234,8 @@ function whiteNoise(nextEvent, {attack = 0, sustain = 0, release = 1, amplitude 
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'white_noise' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime) });//delay node
-        delay.delayTime.value = pulseToSeconds(delaytime);//we assign the value
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
         const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
@@ -246,7 +247,7 @@ function whiteNoise(nextEvent, {attack = 0, sustain = 0, release = 1, amplitude 
 
     whiteNoiseSource.start(context.currentTime);
 
-    whiteNoiseSource.stop(context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
+    whiteNoiseSource.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     
     if(nextEvent){
         nextFunction(nextEvent);
@@ -256,15 +257,15 @@ function whiteNoise(nextEvent, {attack = 0, sustain = 0, release = 1, amplitude 
 /*
  tuned_noise
     frequency: a number greater than 0 representing the frequency in hertz
-    attack: a number greater or equal to 0 representing the attack time as a multiple of the global BPM
-    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the global BPM
-    release: a number greater or equal to 0 representing the release time as a multiple of the global BPM
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM
     amplitude: a number between 0 and 2 representing the amplitude
     pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum
-    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay
     feedback: a number between 0 and 0.9 to control the delay's feedback
  */
-function tunedNoise(nextEvent, {frequency = 100, attack = 0, sustain = 0, release = 1, amplitude = 2, pan = 0, delaytime = 0, feedback = 0.5}){
+function tunedNoise(nextEvent, {frequency = 100, attack = 0, sustain = 0, release = 1, amplitude = 2, pan = 0, delaytime = 0, feedback = 0.5},bpm){
     // initial validations
     if(frequency <= 0){
         throw new Error("'frequency' value for 'tuned_noise' MUST be greater than 0");
@@ -289,11 +290,11 @@ function tunedNoise(nextEvent, {frequency = 100, attack = 0, sustain = 0, releas
     }
 
     //we generate the white noise "node", see context_utilities.js for documentation on "generateWhiteNoise" function
-    const whiteNoiseBuffer = generateWhiteNoise(pulseToSeconds(attack + sustain + release));
+    const whiteNoiseBuffer = generateWhiteNoise(pulseToSeconds(attack + sustain + release,bpm));
     const whiteNoiseSource = context.createBufferSource();
     whiteNoiseSource.buffer = whiteNoiseBuffer;
 
-    const env = createEnvelope(amplitude * 8,attack,sustain,release);//envelope
+    const env = createEnvelope(amplitude * 8,attack,sustain,release,bpm);//envelope
 
     const BPF = new BiquadFilterNode(context, {//band pass filter node
         type: 'bandpass',
@@ -316,8 +317,8 @@ function tunedNoise(nextEvent, {frequency = 100, attack = 0, sustain = 0, releas
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'tuned_noise' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime) });//delay node
-        delay.delayTime.value = pulseToSeconds(delaytime);//we assign the value
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
         const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
@@ -329,7 +330,7 @@ function tunedNoise(nextEvent, {frequency = 100, attack = 0, sustain = 0, releas
 
     whiteNoiseSource.start(context.currentTime);
 
-    whiteNoiseSource.stop(context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
+    whiteNoiseSource.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     
     if(nextEvent){
         nextFunction(nextEvent);
@@ -340,18 +341,18 @@ function tunedNoise(nextEvent, {frequency = 100, attack = 0, sustain = 0, releas
  basic_synth
     frequency: a number greater than 0 representing the frequency in hertz
     detune: a number representing the amount (in hertz) of detuning of the second oscillator
-    attack: a number greater or equal to 0 representing the attack time as a multiple of the global BPM
-    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the global BPM
-    release: a number greater or equal to 0 representing the release time as a multiple of the global BPM
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM
     amplitude: a number between 0 and 1 representing the amplitude
     cutoff: a number greater than 0 representing the cutoff frequency for the low pass filter
     q: a number between 1 and 25 representing the resonance of the filter
     contour: a number between 0.1 and 1 representing the time (as multiple of the duration) for the filter to go from full open to the cutoff value
     pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum
-    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay
     feedback: a number between 0 and 0.9 to control the delay's feedback
  */
-function basicSynth(nextEvent, {frequency = 100 , detune = 1, attack = 0, sustain = 0, release = 1, amplitude = 1, cutoff = 20000, q = 1, contour = 0.8, pan = 0, delaytime = 0, feedback = 0.5}){
+function basicSynth(nextEvent, {frequency = 100 , detune = 1, attack = 0, sustain = 0, release = 1, amplitude = 1, cutoff = 20000, q = 1, contour = 0.8, pan = 0, delaytime = 0, feedback = 0.5},bpm){
     // initial validations
     if(frequency <= 0){
         throw new Error("'frequency' value for 'basic_synth' MUST be greater than 0");
@@ -387,7 +388,7 @@ function basicSynth(nextEvent, {frequency = 100 , detune = 1, attack = 0, sustai
     const osc1 = createOSC(frequency,"sawtooth");//first oscillator
     const osc2 = createOSC(frequency + detune,"sawtooth");//second oscillator
 
-    const env = createEnvelope(amplitude,attack,sustain,release);//envelope
+    const env = createEnvelope(amplitude,attack,sustain,release,bpm);//envelope
 
     const LPF = new BiquadFilterNode(context, {//low pass filter node
         type: 'lowpass',
@@ -397,8 +398,8 @@ function basicSynth(nextEvent, {frequency = 100 , detune = 1, attack = 0, sustai
     //envelope for the cutoff of the filter
     LPF.frequency.cancelScheduledValues(context.currentTime);
     LPF.frequency.setValueAtTime(20000, context.currentTime);
-    LPF.frequency.linearRampToValueAtTime(20000, context.currentTime + pulseToSeconds(attack));
-    LPF.frequency.exponentialRampToValueAtTime(cutoff, context.currentTime + pulseToSeconds(attack) + pulseToSeconds(contour));//CONTOUR
+    LPF.frequency.linearRampToValueAtTime(20000, context.currentTime + pulseToSeconds(attack,bpm));
+    LPF.frequency.exponentialRampToValueAtTime(cutoff, context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(contour,bpm));//CONTOUR
 
 
     const panner = setPan(pan);//panner
@@ -422,8 +423,8 @@ function basicSynth(nextEvent, {frequency = 100 , detune = 1, attack = 0, sustai
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'basic_synth' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime) });//delay node
-        delay.delayTime.value = pulseToSeconds(delaytime);//we assign the value
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
         const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
@@ -436,8 +437,8 @@ function basicSynth(nextEvent, {frequency = 100 , detune = 1, attack = 0, sustai
     osc1.start(context.currentTime);
     osc2.start(context.currentTime);
 
-    osc1.stop(context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
-    osc2.stop(context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
+    osc1.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    osc2.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     
     if(nextEvent){
         nextFunction(nextEvent);
@@ -447,16 +448,16 @@ function basicSynth(nextEvent, {frequency = 100 , detune = 1, attack = 0, sustai
 /*
  bass_line
     frequency: a number greater than 0 representing the frequency in hertz
-    attack: a number greater or equal to 0 representing the attack time as a multiple of the global BPM
-    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the global BPM
-    release: a number greater or equal to 0 representing the release time as a multiple of the global BPM
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM
     amplitude: a number between 0 and 1 representing the amplitude
     cutoff: a number greater than 0 representing the cutoff frequency for the low pass filter
     pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum
-    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay
     feedback: a number between 0 and 0.9 to control the delay's feedback
  */
-function bassLine(nextEvent, {frequency = 100 , attack = 0, sustain = 0, release = 1, amplitude = 1, cutoff = 10000, pan = 0, delaytime = 0, feedback = 0.5}){
+function bassLine(nextEvent, {frequency = 100 , attack = 0, sustain = 0, release = 1, amplitude = 1, cutoff = 10000, pan = 0, delaytime = 0, feedback = 0.5},bpm){
     // initial validations
     if(frequency <= 0){
         throw new Error("'frequency' value for 'bass_line' MUST be greater than 0");
@@ -486,7 +487,7 @@ function bassLine(nextEvent, {frequency = 100 , attack = 0, sustain = 0, release
     const osc1 = createOSC(frequency,"sawtooth");//first oscillator
     const osc2 = createOSC(frequency / 2,"square");//second oscillator
 
-    const env = createEnvelope(amplitude,attack,sustain,release);//envelope
+    const env = createEnvelope(amplitude,attack,sustain,release,bpm);//envelope
 
     const LPF = new BiquadFilterNode(context, {//low pass filter node
         type: 'lowpass',
@@ -515,8 +516,8 @@ function bassLine(nextEvent, {frequency = 100 , attack = 0, sustain = 0, release
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'bass_line' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime) });//delay node
-        delay.delayTime.value = pulseToSeconds(delaytime);//we assign the value
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
         const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
@@ -529,8 +530,8 @@ function bassLine(nextEvent, {frequency = 100 , attack = 0, sustain = 0, release
     osc1.start(context.currentTime);
     osc2.start(context.currentTime);
 
-    osc1.stop(context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
-    osc2.stop(context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
+    osc1.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    osc2.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     
     if(nextEvent){
         nextFunction(nextEvent);
@@ -540,17 +541,17 @@ function bassLine(nextEvent, {frequency = 100 , attack = 0, sustain = 0, release
 /*
  basic_fm
     frequency: a number greater than 0 representing the frequency in hertz
-    attack: a number greater or equal to 0 representing the attack time as a multiple of the global BPM
-    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the global BPM
-    release: a number greater or equal to 0 representing the release time as a multiple of the global BPM
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM
     amplitude: a number between 0 and 1 representing the amplitude
     mod: a number greater than 0 representing the frequency of the modulator as a multiple of the carrier
     depth: a number greater or equal to 0 representing the depth of the modulation
     pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum
-    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay
     feedback: a number between 0 and 0.9 to control the delay's feedback
  */
-function basicFm(nextEvent,{frequency = 100, attack = 0, sustain = 0, release = 1, amplitude = 1, mod = 2, depth = 1000, pan = 0, delaytime = 0, feedback = 0.5}){
+function basicFm(nextEvent,{frequency = 100, attack = 0, sustain = 0, release = 1, amplitude = 1, mod = 2, depth = 1000, pan = 0, delaytime = 0, feedback = 0.5},bpm){
     // initial validations
     if(frequency <= 0){
         throw new Error("'frequency' value for 'basic_fm' MUST be greater than 0");
@@ -583,8 +584,8 @@ function basicFm(nextEvent,{frequency = 100, attack = 0, sustain = 0, release = 
     const carrier = createOSC(frequency,"sine");//carrier oscillator
     const modulator = createOSC(frequency * mod,"sine");//modulator oscillator
 
-    const env = createEnvelope(amplitude,attack,sustain,release);//main envelope
-    const modEnv = createEnvelope(depth,attack,sustain,release);//envelope for modulator --> depth
+    const env = createEnvelope(amplitude,attack,sustain,release,bpm);//main envelope
+    const modEnv = createEnvelope(depth,attack,sustain,release,bpm);//envelope for modulator --> depth
 
     const panner = setPan(pan);//panner
     const splitter = context.createChannelSplitter(2);//this will split the signal in two channels
@@ -604,8 +605,8 @@ function basicFm(nextEvent,{frequency = 100, attack = 0, sustain = 0, release = 
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'basic_fm' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime) });//delay node
-        delay.delayTime.value = pulseToSeconds(delaytime);//we assign the value
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
         const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
@@ -618,8 +619,8 @@ function basicFm(nextEvent,{frequency = 100, attack = 0, sustain = 0, release = 
     carrier.start(context.currentTime);
     modulator.start(context.currentTime);
 
-    carrier.stop(context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
-    modulator.stop(context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
+    carrier.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    modulator.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
 
     if(nextEvent){
         nextFunction(nextEvent);
@@ -629,20 +630,20 @@ function basicFm(nextEvent,{frequency = 100, attack = 0, sustain = 0, release = 
 /*
  basic_fm_env
     frequency: a number greater than 0 representing the frequency in hertz
-    attack: a number greater or equal to 0 representing the attack time as a multiple of the global BPM
-    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the global BPM
-    release: a number greater or equal to 0 representing the release time as a multiple of the global BPM
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM
     amplitude: a number between 0 and 1 representing the amplitude
     mod: a number greater than 0 representing the frequency of the modulator as a multiple of the carrier
     depth: a number greater or equal to 0 representing the depth of the modulation
-    modattack: a number greater or equal to 0 representing the attack time of the modulator as a multiple of the global BPM
-    modsustain: a number greater or equal to 0 representing the sustain time of the modulator as a multiple of the global BPM
-    modrelease: a number greater or equal to 0 representing the release time of the modulator as a multiple of the global BPM
+    modattack: a number greater or equal to 0 representing the attack time of the modulator as a multiple of the BPM
+    modsustain: a number greater or equal to 0 representing the sustain time of the modulator as a multiple of the BPM
+    modrelease: a number greater or equal to 0 representing the release time of the modulator as a multiple of the BPM
     pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum
-    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay
     feedback: a number between 0 and 0.9 to control the delay's feedback
  */
-function basicFmEnv(nextEvent,{frequency = 100, attack = 0, sustain = 0, release = 1, amplitude = 1, mod = 2, depth = 1000, modattack = 0, modsustain = 0, modrelease = 1, pan = 0, delaytime = 0, feedback = 0.5}){
+function basicFmEnv(nextEvent,{frequency = 100, attack = 0, sustain = 0, release = 1, amplitude = 1, mod = 2, depth = 1000, modattack = 0, modsustain = 0, modrelease = 1, pan = 0, delaytime = 0, feedback = 0.5},bpm){
     // initial validations
     if(frequency <= 0){
         throw new Error("'frequency' value for 'basic_fm_env' MUST be greater than 0");
@@ -685,8 +686,8 @@ function basicFmEnv(nextEvent,{frequency = 100, attack = 0, sustain = 0, release
     const modulator = createOSC(frequency * mod,"sine");//modulator
 
     //envelopes
-    const env = createEnvelope(amplitude,attack,sustain,release);
-    const modEnv = createEnvelope(depth,modattack,modsustain,modrelease);
+    const env = createEnvelope(amplitude,attack,sustain,release,bpm);
+    const modEnv = createEnvelope(depth,modattack,modsustain,modrelease,bpm);
 
     const panner = setPan(pan);//panner
     const splitter = context.createChannelSplitter(2);//this will split the signal in two channels
@@ -706,8 +707,8 @@ function basicFmEnv(nextEvent,{frequency = 100, attack = 0, sustain = 0, release
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'basic_fm_env' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime) });//delay node
-        delay.delayTime.value = pulseToSeconds(delaytime);//we assign the value
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
         const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
@@ -720,8 +721,8 @@ function basicFmEnv(nextEvent,{frequency = 100, attack = 0, sustain = 0, release
     carrier.start(context.currentTime);
     modulator.start(context.currentTime);
 
-    carrier.stop(context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
-    modulator.stop(context.currentTime + pulseToSeconds(modattack) + pulseToSeconds(modsustain) + pulseToSeconds(modrelease));
+    carrier.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    modulator.stop(context.currentTime + pulseToSeconds(modattack,bpm) + pulseToSeconds(modsustain,bpm) + pulseToSeconds(modrelease,bpm));
 
     if(nextEvent){
         nextFunction(nextEvent);
@@ -732,25 +733,25 @@ function basicFmEnv(nextEvent,{frequency = 100, attack = 0, sustain = 0, release
 /*
  fm_in_series
     frequency: a number greater than 0 representing the frequency in hertz. Default: 200.
-    attack: a number greater or equal to 0 representing the attack time as a multiple of the global BPM. Default: 0.
-    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the global BPM. Default: 8.
-    release: a number greater or equal to 0 representing the release time as a multiple of the global BPM. Default: 8.
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 8.
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 8.
     amplitude: a number between 0 and 1 representing the amplitude. Default: 1.
     modone: a number greater than 0 representing the frequency of the first modulator as a multiple of the carrier. Default: 0.0625.
     depthone: a number greater or equal to 0 representing the depth of the modulation of the first modulator. Default: 3000.
-    oneattack: a number greater or equal to 0 representing the attack time of the first modulator as a multiple of the global BPM. Default: 0.
-    onesustain: a number greater or equal to 0 representing the sustain time of the first modulator as a multiple of the global BPM. Default: 0.
-    onerelease: a number greater or equal to 0 representing the release time of the first modulator as a multiple of the global BPM. Default: 16.
+    oneattack: a number greater or equal to 0 representing the attack time of the first modulator as a multiple of the BPM. Default: 0.
+    onesustain: a number greater or equal to 0 representing the sustain time of the first modulator as a multiple of the BPM. Default: 0.
+    onerelease: a number greater or equal to 0 representing the release time of the first modulator as a multiple of the BPM. Default: 16.
     modtwo: a number greater than 0 representing the frequency of the second modulator as a multiple of the first modulator. Default: 3.
     depthtwo: a number greater or equal to 0 representing the depth of the modulation of the second modulator. Default: 1000.
-    twoattack: a number greater or equal to 0 representing the attack time of the second modulator as a multiple of the global BPM. Default: 12.
-    twosustain: a number greater or equal to 0 representing the sustain time of the second modulator as a multiple of the global BPM. Default: 0.
-    tworelease: a number greater or equal to 0 representing the release time of the second modulator as a multiple of the global BPM. Default: 3.
+    twoattack: a number greater or equal to 0 representing the attack time of the second modulator as a multiple of the BPM. Default: 12.
+    twosustain: a number greater or equal to 0 representing the sustain time of the second modulator as a multiple of the BPM. Default: 0.
+    tworelease: a number greater or equal to 0 representing the release time of the second modulator as a multiple of the BPM. Default: 3.
     pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
-    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay. Default: 0.
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
     feedback: a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
  */
-function fmInSeries(nextEvent,{frequency = 200, attack = 0, sustain = 8, release = 8, amplitude = 1, modone = 0.0625, depthone = 3000, oneattack = 0, onesustain = 0, onerelease = 16, modtwo = 3, depthtwo = 1000, twoattack = 12, twosustain = 0, tworelease = 3, pan = 0, delaytime = 0, feedback = 0.5}){
+function fmInSeries(nextEvent,{frequency = 200, attack = 0, sustain = 8, release = 8, amplitude = 1, modone = 0.0625, depthone = 3000, oneattack = 0, onesustain = 0, onerelease = 16, modtwo = 3, depthtwo = 1000, twoattack = 12, twosustain = 0, tworelease = 3, pan = 0, delaytime = 0, feedback = 0.5},bpm){
     // initial validations
     if(frequency <= 0){
         throw new Error("'frequency' value for 'fm_in_series' MUST be greater than 0");
@@ -809,9 +810,9 @@ function fmInSeries(nextEvent,{frequency = 200, attack = 0, sustain = 8, release
     const modulatorTwo = createOSC(frequency * modone * modtwo,"sine");//modulator
 
     //envelopes
-    const env = createEnvelope(amplitude,attack,sustain,release);
-    const modOneEnv = createEnvelope(depthone,oneattack,onesustain,onerelease);
-    const modTwoEnv = createEnvelope(depthtwo,twoattack,twosustain,tworelease);
+    const env = createEnvelope(amplitude,attack,sustain,release,bpm);
+    const modOneEnv = createEnvelope(depthone,oneattack,onesustain,onerelease,bpm);
+    const modTwoEnv = createEnvelope(depthtwo,twoattack,twosustain,tworelease,bpm);
 
     const panner = setPan(pan);//panner
     const splitter = context.createChannelSplitter(2);//this will split the signal in two channels
@@ -833,8 +834,8 @@ function fmInSeries(nextEvent,{frequency = 200, attack = 0, sustain = 8, release
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'fm_in_series' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime) });//delay node
-        delay.delayTime.value = pulseToSeconds(delaytime);//we assign the value
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
         const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
@@ -848,9 +849,9 @@ function fmInSeries(nextEvent,{frequency = 200, attack = 0, sustain = 8, release
     modulatorOne.start(context.currentTime);
     modulatorTwo.start(context.currentTime);
 
-    carrier.stop(context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
-    modulatorOne.stop(context.currentTime + pulseToSeconds(oneattack) + pulseToSeconds(onesustain) + pulseToSeconds(onerelease));
-    modulatorTwo.stop(context.currentTime + pulseToSeconds(twoattack) + pulseToSeconds(twosustain) + pulseToSeconds(tworelease));
+    carrier.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    modulatorOne.stop(context.currentTime + pulseToSeconds(oneattack,bpm) + pulseToSeconds(onesustain,bpm) + pulseToSeconds(onerelease,bpm));
+    modulatorTwo.stop(context.currentTime + pulseToSeconds(twoattack,bpm) + pulseToSeconds(twosustain,bpm) + pulseToSeconds(tworelease,bpm));
 
     if(nextEvent){
         nextFunction(nextEvent);
@@ -861,25 +862,25 @@ function fmInSeries(nextEvent,{frequency = 200, attack = 0, sustain = 8, release
 /*
  fm_in_parallel
     frequency: a number greater than 0 representing the frequency in hertz. Default: 200.
-    attack: a number greater or equal to 0 representing the attack time as a multiple of the global BPM. Default: 0.
-    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the global BPM. Default: 8.
-    release: a number greater or equal to 0 representing the release time as a multiple of the global BPM. Default: 8.
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 8.
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 8.
     amplitude: a number between 0 and 1 representing the amplitude. Default: 1.
     modone: a number greater than 0 representing the frequency of the first modulator as a multiple of the carrier. Default: 0.0625.
     depthone: a number greater or equal to 0 representing the depth of the modulation of the first modulator. Default: 3000.
-    oneattack: a number greater or equal to 0 representing the attack time of the first modulator as a multiple of the global BPM. Default: 0.
-    onesustain: a number greater or equal to 0 representing the sustain time of the first modulator as a multiple of the global BPM. Default: 0.
-    onerelease: a number greater or equal to 0 representing the release time of the first modulator as a multiple of the global BPM. Default: 16.
+    oneattack: a number greater or equal to 0 representing the attack time of the first modulator as a multiple of the BPM. Default: 0.
+    onesustain: a number greater or equal to 0 representing the sustain time of the first modulator as a multiple of the BPM. Default: 0.
+    onerelease: a number greater or equal to 0 representing the release time of the first modulator as a multiple of the BPM. Default: 16.
     modtwo: a number greater than 0 representing the frequency of the second modulator as a multiple of the first modulator. Default: 3.
     depthtwo: a number greater or equal to 0 representing the depth of the modulation of the second modulator. Default: 1000.
-    twoattack: a number greater or equal to 0 representing the attack time of the second modulator as a multiple of the global BPM. Default: 12.
-    twosustain: a number greater or equal to 0 representing the sustain time of the second modulator as a multiple of the global BPM. Default: 0.
-    tworelease: a number greater or equal to 0 representing the release time of the second modulator as a multiple of the global BPM. Default: 3.
+    twoattack: a number greater or equal to 0 representing the attack time of the second modulator as a multiple of the BPM. Default: 12.
+    twosustain: a number greater or equal to 0 representing the sustain time of the second modulator as a multiple of the BPM. Default: 0.
+    tworelease: a number greater or equal to 0 representing the release time of the second modulator as a multiple of the BPM. Default: 3.
     pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
-    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay. Default: 0.
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
     feedback: a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
  */
-function fmInParallel(nextEvent,{frequency = 200, attack = 0, sustain = 8, release = 8, amplitude = 1, modone = 0.0625, depthone = 3000, oneattack = 0, onesustain = 0, onerelease = 16, modtwo = 3, depthtwo = 1000, twoattack = 12, twosustain = 0, tworelease = 3, pan = 0, delaytime = 0, feedback = 0.5}){
+function fmInParallel(nextEvent,{frequency = 200, attack = 0, sustain = 8, release = 8, amplitude = 1, modone = 0.0625, depthone = 3000, oneattack = 0, onesustain = 0, onerelease = 16, modtwo = 3, depthtwo = 1000, twoattack = 12, twosustain = 0, tworelease = 3, pan = 0, delaytime = 0, feedback = 0.5},bpm){
     // initial validations
     if(frequency <= 0){
         throw new Error("'frequency' value for 'fm_in_parallel' MUST be greater than 0");
@@ -938,9 +939,9 @@ function fmInParallel(nextEvent,{frequency = 200, attack = 0, sustain = 8, relea
     const modulatorTwo = createOSC(frequency * modone * modtwo,"sine");//modulator
 
     //envelopes
-    const env = createEnvelope(amplitude,attack,sustain,release);
-    const modOneEnv = createEnvelope(depthone,oneattack,onesustain,onerelease);
-    const modTwoEnv = createEnvelope(depthtwo,twoattack,twosustain,tworelease);
+    const env = createEnvelope(amplitude,attack,sustain,release,bpm);
+    const modOneEnv = createEnvelope(depthone,oneattack,onesustain,onerelease,bpm);
+    const modTwoEnv = createEnvelope(depthtwo,twoattack,twosustain,tworelease,bpm);
 
     const panner = setPan(pan);//panner
     const splitter = context.createChannelSplitter(2);//this will split the signal in two channels
@@ -962,8 +963,8 @@ function fmInParallel(nextEvent,{frequency = 200, attack = 0, sustain = 8, relea
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'fm_in_parallel' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime) });//delay node
-        delay.delayTime.value = pulseToSeconds(delaytime);//we assign the value
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
         const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
@@ -977,9 +978,9 @@ function fmInParallel(nextEvent,{frequency = 200, attack = 0, sustain = 8, relea
     modulatorOne.start(context.currentTime);
     modulatorTwo.start(context.currentTime);
 
-    carrier.stop(context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
-    modulatorOne.stop(context.currentTime + pulseToSeconds(oneattack) + pulseToSeconds(onesustain) + pulseToSeconds(onerelease));
-    modulatorTwo.stop(context.currentTime + pulseToSeconds(twoattack) + pulseToSeconds(twosustain) + pulseToSeconds(tworelease));
+    carrier.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    modulatorOne.stop(context.currentTime + pulseToSeconds(oneattack,bpm) + pulseToSeconds(onesustain,bpm) + pulseToSeconds(onerelease,bpm));
+    modulatorTwo.stop(context.currentTime + pulseToSeconds(twoattack,bpm) + pulseToSeconds(twosustain,bpm) + pulseToSeconds(tworelease,bpm));
 
     if(nextEvent){
         nextFunction(nextEvent);

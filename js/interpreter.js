@@ -775,7 +775,8 @@ function transformer(ast,main = true){//main will indicate if we are transformin
                 //we change the name to camel case --> some_thing --> someThing
                 functionName : name.split("_").map((word,i) => i > 0 ? word.slice(0,1).toUpperCase() + word.slice(1) : word).join(""),
                 wait, //the wait is our global variable of the same name
-                args
+                args,
+                bpm //the CURRENT bpm to be used in envelopes and delay times
             };
 
             sequence.push(event);//we push the event

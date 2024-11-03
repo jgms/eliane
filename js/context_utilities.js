@@ -16,8 +16,8 @@ function calculateRMS(data) {//it will receive the time-domain data from the Ana
     return Math.sqrt(sum / data.length);//and return the RMS
 }
 
-//helper function to get SECONDS out of multiples of our global BPM
-function pulseToSeconds(value){
+//helper function to get SECONDS out of multiples of the CURRENT(at the moment of playing the sound) BPM
+function pulseToSeconds(value,bpm){
     return value * bpm / 1000;
 }
 
@@ -26,19 +26,19 @@ function createOSC(frequency,type){//this functions returns a simple oscillator 
     return new OscillatorNode(context,{type,frequency});
 }
 
-function createEnvelope(amplitude, attack, sustain, release){//this function returns an envelope. Attack, sustain and release times are in multiples of the global BPM, we'll use the helper pulseToSeconds to handle them 
+function createEnvelope(amplitude, attack, sustain, release,bpm){//this function returns an envelope. Attack, sustain and release times are in multiples of the CURENT BPM, we'll use the helper pulseToSeconds to handle them 
     const envelope = new GainNode(context);
 
     envelope.gain.cancelScheduledValues(context.currentTime);
     envelope.gain.setValueAtTime(0,context.currentTime);
-    envelope.gain.linearRampToValueAtTime(amplitude, context.currentTime + pulseToSeconds(attack));
-    envelope.gain.linearRampToValueAtTime(amplitude, context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain));
+    envelope.gain.linearRampToValueAtTime(amplitude, context.currentTime + pulseToSeconds(attack,bpm));
+    envelope.gain.linearRampToValueAtTime(amplitude, context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm));
     
     //linear or exponential..can't decide =(
-    //envelope.gain.linearRampToValueAtTime(0, context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
+    //envelope.gain.linearRampToValueAtTime(0, context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release));
     
-    envelope.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release));
-    envelope.gain.linearRampToValueAtTime(0, context.currentTime + pulseToSeconds(attack) + pulseToSeconds(sustain) + pulseToSeconds(release) + 0.01);
+    envelope.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    envelope.gain.linearRampToValueAtTime(0, context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm) + 0.01);
     
     return envelope;
 }

@@ -33,17 +33,17 @@ let functions = null;//will be an object we'll populate in the functions_registe
 nextFunction
 This function receives the next event in the sequence and executes it. All registered functions MUST HAVE this mechanism implemented
 
-This event is an object with a function name, a wait time and an object of arguments
-{ functionName : "exampleFunction", wait : 1000, args : { a : 1, b : 2 } }
+This event is an object with a function name, a wait time, an object of arguments and the CURRENT bpm
+{ functionName : "exampleFunction", wait : 1000, args : { a : 1, b : 2 }, bpm }
 
 */
 function nextFunction(next){
-    let {functionName,wait,args} = next;
+    let {functionName,wait,args,bpm} = next;
     setTimeout(() => {
         sequenceIndex++;//update the global index
         try{
             //if there's another event, we pass it as the first argument, if not, we pass NULL
-            functions[functionName](sequenceIndex < sequence.length ? sequence[sequenceIndex] : null, args);
+            functions[functionName](sequenceIndex < sequence.length ? sequence[sequenceIndex] : null, args,bpm);
         }catch(error){
             errorLog.classList.add("error");
             let errorMsg = error.toString().split(":");
@@ -61,12 +61,12 @@ function nextFunction(next){
 function sequenceStart(){
     sequenceIndex = 0;//reset our timeline
     if(sequence.length > 0){//if there is at least one event in the sequence, PLAY!!!
-        let {functionName,wait,args} = sequence[0];
+        let {functionName,wait,args,bpm} = sequence[0];
         setTimeout(() => {
             sequenceIndex++;//update the global index
             try{
                 //if there's another event, we pass it as the first argument, if not, we pass NULL
-                functions[functionName](sequenceIndex < sequence.length ? sequence[sequenceIndex] : null, args);
+                functions[functionName](sequenceIndex < sequence.length ? sequence[sequenceIndex] : null, args,bpm);
             }catch(error){
                 errorLog.classList.add("error");
                 let errorMsg = error.toString().split(":");

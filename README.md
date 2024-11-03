@@ -63,7 +63,7 @@ It's important to notice that the colon is part of the parameter name, as in "fr
 
 ### pulse
 
-The **pulse** keyword defines the global BPM (beats per minute) of the sequence, the default value is 60.
+The **pulse** keyword defines the BPM (beats per minute) of the sequence, the default value is 60.
 
 ```
 pulse 145;
@@ -135,12 +135,12 @@ Let's go one by one, as you will see, I'll only tell you about its parameters, f
 Parameters:
 
 - **frequency:** a number greater than 0 representing the frequency in hertz. Default: 100.
-- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the global BPM. Default: 0.
-- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the global BPM. Default: 0.
-- **release:** a number greater or equal to 0 representing the release time as a multiple of the global BPM. Default: 1.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 0.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 1.
 - **amplitude:** a number between 0 and 1 representing the amplitude. Default: 1.
 - **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.. Default: 0.
-- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
 
 ### simple_wave
@@ -149,24 +149,24 @@ Parameters:
 
 - **wave:** a number representing the waveform --> 0 -> sine, 1 -> triangle, 2 -> square, 3 -> sawtooth. Default: 0.
 - **frequency:** a number greater than 0 representing the frequency in hertz. Default: 100.
-- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the global BPM. Default: 0. 
-- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the global BPM. Default: 0.
-- **release:** a number greater or equal to 0 representing the release time as a multiple of the global BPM. Default: 1.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0. 
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 0.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 1.
 - **amplitude:** a number between 0 and 1 representing the amplitude. Default: 1.
 - **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
-- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
 
 ### white_noise
 
 Parameters:
 
-- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the global BPM. Default: 0.
-- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the global BPM. Default: 0.
-- **release:** a number greater or equal to 0 representing the release time as a multiple of the global BPM. Default: 1.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 0.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 1.
 - **amplitude:** a number between 0 and 1 representing the amplitude. Default: 1.
 - **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
-- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
 
 ### tuned_noise
@@ -174,12 +174,12 @@ Parameters:
 Parameters:
 
 - **frequency:** a number greater than 0 representing the frequency in hertz. Default: 100.
-- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the global BPM. Default: 0.
-- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the global BPM. Default: 0.
-- **release:** a number greater or equal to 0 representing the release time as a multiple of the global BPM. Default: 1.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 0.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 1.
 - **amplitude:** a number between 0 and 2 representing the amplitude. Default: 2.
 - **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
-- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
 
 ### basic_synth
@@ -188,15 +188,15 @@ Parameters:
 
 - **frequency:** a number greater than 0 representing the frequency in hertz. Default: 100.
 - **detune:** a number representing the amount (in hertz) of detuning of the second oscillator. Default: 1.
-- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the global BPM. Default: 0.
-- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the global BPM. Default: 0.
-- **release:** a number greater or equal to 0 representing the release time as a multiple of the global BPM. Default: 1.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 0.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 1.
 - **amplitude:** a number between 0 and 1 representing the amplitude. Default: 1.
 - **cutoff:** a number greater than 0 representing the cutoff frequency for the low pass filter. Default: 20000.
 - **q:** a number between 1 and 25 representing the resonance of the filter. Default: 1.
 - **contour:** a number between 0.1 and 1 representing the time (as multiple of the duration) for the filter to go from full open to the cutoff value. Default: 0.8.
 - **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
-- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
 
 ### bass_line
@@ -204,13 +204,13 @@ Parameters:
 Parameters:
 
 - **frequency:** a number greater than 0 representing the frequency in hertz. Default: 100.
-- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the global BPM. Default: 0.
-- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the global BPM. Default: 0.
-- **release:** a number greater or equal to 0 representing the release time as a multiple of the global BPM. Default: 1.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 0.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 1.
 - **amplitude:** a number between 0 and 1 representing the amplitude. Default: 1.
 - **cutoff:** a number greater than 0 representing the cutoff frequency for the low pass filter. Default: 10000.
 - **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
-- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
 
 ### basic_fm
@@ -218,14 +218,14 @@ Parameters:
 Parameters:
 
 - **frequency:** a number greater than 0 representing the frequency in hertz. Default: 100.
-- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the global BPM. Default: 0.
-- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the global BPM. Default: 0.
-- **release:** a number greater or equal to 0 representing the release time as a multiple of the global BPM. Default: 1.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 0.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 1.
 - **amplitude:** a number between 0 and 1 representing the amplitude. Default: 1.
 - **mod:** a number greater than 0 representing the frequency of the modulator as a multiple of the carrier. Default: 2.
 - **depth:** a number greater or equal to 0 representing the depth of the modulation. Default: 1000.
 - **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
-- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
 
 ### basic_fm_env
@@ -233,17 +233,17 @@ Parameters:
 Parameters:
 
 - **frequency:** a number greater than 0 representing the frequency in hertz. Default: 100.
-- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the global BPM. Default: 0.
-- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the global BPM. Default: 0.
-- **release:** a number greater or equal to 0 representing the release time as a multiple of the global BPM. Default: 1.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 0.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 1.
 - **amplitude:** a number between 0 and 1 representing the amplitude. Default: 1.
 - **mod:** a number greater than 0 representing the frequency of the modulator as a multiple of the carrier. Default: 2.
 - **depth:** a number greater or equal to 0 representing the depth of the modulation. Default: 1000.
-- **modattack:** a number greater or equal to 0 representing the attack time of the modulator as a multiple of the global BPM. Default: 0.
-- **modsustain:** a number greater or equal to 0 representing the sustain time of the modulator as a multiple of the global BPM. Default: 0.
-- **modrelease:** a number greater or equal to 0 representing the release time of the modulator as a multiple of the global BPM. Default: 1.
+- **modattack:** a number greater or equal to 0 representing the attack time of the modulator as a multiple of the BPM. Default: 0.
+- **modsustain:** a number greater or equal to 0 representing the sustain time of the modulator as a multiple of the BPM. Default: 0.
+- **modrelease:** a number greater or equal to 0 representing the release time of the modulator as a multiple of the BPM. Default: 1.
 - **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
-- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
 
 ### fm_in_series
@@ -251,22 +251,22 @@ Parameters:
 Parameters:
 
 - **frequency:** a number greater than 0 representing the frequency in hertz. Default: 200.
-- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the global BPM. Default: 0.
-- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the global BPM. Default: 8.
-- **release:** a number greater or equal to 0 representing the release time as a multiple of the global BPM. Default: 8.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 8.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 8.
 - **amplitude:** a number between 0 and 1 representing the amplitude. Default: 1.
 - **modone:** a number greater than 0 representing the frequency of the first modulator as a multiple of the carrier. Default: 0.0625.
 - **depthone:** a number greater or equal to 0 representing the depth of the modulation of the first modulator. Default: 3000.
-- **oneattack:** a number greater or equal to 0 representing the attack time of the first modulator as a multiple of the global BPM. Default: 0.
-- **onesustain:** a number greater or equal to 0 representing the sustain time of the first modulator as a multiple of the global BPM. Default: 0.
-- **onerelease:** a number greater or equal to 0 representing the release time of the first modulator as a multiple of the global BPM. Default: 16.
+- **oneattack:** a number greater or equal to 0 representing the attack time of the first modulator as a multiple of the BPM. Default: 0.
+- **onesustain:** a number greater or equal to 0 representing the sustain time of the first modulator as a multiple of the BPM. Default: 0.
+- **onerelease:** a number greater or equal to 0 representing the release time of the first modulator as a multiple of the BPM. Default: 16.
 - **modtwo:** a number greater than 0 representing the frequency of the second modulator as a multiple of the first modulator. Default: 3.
 - **depthtwo:** a number greater or equal to 0 representing the depth of the modulation of the second modulator. Default: 1000.
-- **twoattack:** a number greater or equal to 0 representing the attack time of the second modulator as a multiple of the global BPM. Default: 12.
-- **twosustain:** a number greater or equal to 0 representing the sustain time of the second modulator as a multiple of the global BPM. Default: 0.
-- **tworelease:** a number greater or equal to 0 representing the release time of the second modulator as a multiple of the global BPM. Default: 3.
+- **twoattack:** a number greater or equal to 0 representing the attack time of the second modulator as a multiple of the BPM. Default: 12.
+- **twosustain:** a number greater or equal to 0 representing the sustain time of the second modulator as a multiple of the BPM. Default: 0.
+- **tworelease:** a number greater or equal to 0 representing the release time of the second modulator as a multiple of the BPM. Default: 3.
 - **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
-- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
 
 ### fm_in_parallel
@@ -274,22 +274,22 @@ Parameters:
 Parameters:
 
 - **frequency:** a number greater than 0 representing the frequency in hertz. Default: 200.
-- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the global BPM. Default: 0.
-- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the global BPM. Default: 8.
-- **release:** a number greater or equal to 0 representing the release time as a multiple of the global BPM. Default: 8.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 8.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 8.
 - **amplitude:** a number between 0 and 1 representing the amplitude. Default: 1.
 - **modone:** a number greater than 0 representing the frequency of the first modulator as a multiple of the carrier. Default: 0.0625.
 - **depthone:** a number greater or equal to 0 representing the depth of the modulation of the first modulator. Default: 3000.
-- **oneattack:** a number greater or equal to 0 representing the attack time of the first modulator as a multiple of the global BPM. Default: 0.
-- **onesustain:** a number greater or equal to 0 representing the sustain time of the first modulator as a multiple of the global BPM. Default: 0.
-- **onerelease:** a number greater or equal to 0 representing the release time of the first modulator as a multiple of the global BPM. Default: 16.
+- **oneattack:** a number greater or equal to 0 representing the attack time of the first modulator as a multiple of the BPM. Default: 0.
+- **onesustain:** a number greater or equal to 0 representing the sustain time of the first modulator as a multiple of the BPM. Default: 0.
+- **onerelease:** a number greater or equal to 0 representing the release time of the first modulator as a multiple of the BPM. Default: 16.
 - **modtwo:** a number greater than 0 representing the frequency of the second modulator as a multiple of the first modulator. Default: 3.
 - **depthtwo:** a number greater or equal to 0 representing the depth of the modulation of the second modulator. Default: 1000.
-- **twoattack:** a number greater or equal to 0 representing the attack time of the second modulator as a multiple of the global BPM. Default: 12.
-- **twosustain:** a number greater or equal to 0 representing the sustain time of the second modulator as a multiple of the global BPM. Default: 0.
-- **tworelease:** a number greater or equal to 0 representing the release time of the second modulator as a multiple of the global BPM. Default: 3.
+- **twoattack:** a number greater or equal to 0 representing the attack time of the second modulator as a multiple of the BPM. Default: 12.
+- **twosustain:** a number greater or equal to 0 representing the sustain time of the second modulator as a multiple of the BPM. Default: 0.
+- **tworelease:** a number greater or equal to 0 representing the release time of the second modulator as a multiple of the BPM. Default: 3.
 - **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
-- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the global BPM, when 0, there's no delay. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
 
 ## adding your own functions
@@ -299,13 +299,14 @@ In order to add your own functions to *éliane*, you have to go inside the 'js' 
 - Be **careful** with your ears as you design your sounds.
 - All functions MUST receive a **nextEvent** argument, in order to implement the mechanism that will keep the sequence going.
 - The second argument must be a destructured object with defaults values, all arguments must be numbers.
+- The third argument represents the CURRENT bpm, as is given to you by the interpreter and needed by the pulseToSeconds and createEnvelope utility functions, it's up to you to decide if it is of use to you or not.
 - Function names must have at least two words in camel case.
 - Did I say be **careful** with your ears?
 
 ```JS
-function myFunction(nextEvent, {a = 12, b = 23, c = 23 }){
+function myFunction(nextEvent, {a = 12, b = 23, c = 23 },bpm){//BPM is optional
 
-    //the stuff the functions does
+    //the stuff the function does
 
     //at the end of your function, add this, this is the mechanism that keeps the sequence going
     if(nextEvent){//if there's a next event
