@@ -292,7 +292,8 @@ Parameters:
 - **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
 
-### simple_sequence (not really an instrument, but a utility to play a sequence starting on a base frequency and going up or down at a fixed interval)
+### simple_sequence
+Not really an instrument, but a utility to play a sequence starting on a base frequency and going up or down at a fixed interval
 
 Parameters:
 
