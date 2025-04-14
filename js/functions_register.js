@@ -988,6 +988,106 @@ function fmInParallel(nextEvent,{frequency = 200, attack = 0, sustain = 8, relea
 
 }
 
+/*
+ basic_fm_lfo
+    frequency: a number greater than 0 representing the frequency in hertz
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM
+    amplitude: a number between 0 and 1 representing the amplitude
+    mod: a number greater than 0 representing the frequency of the modulator as a multiple of the carrier
+    depth: a number greater or equal to 0 representing the depth of the modulation
+    lfo: a number greater than 0 representing the frequency of the LFO in hertz 
+    pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay
+    feedback: a number between 0 and 0.9 to control the delay's feedback
+ */
+function basicFmLfo(nextEvent,{frequency = 400, attack = 0, sustain = 0, release = 8, amplitude = 1, mod = 0.25, depth = 1000, lfo = 0.5, pan = 0, delaytime = 0, feedback = 0.5},bpm){
+    // initial validations
+    if(frequency <= 0){
+        throw new Error("'frequency' value for 'basic_fm_lfo' MUST be greater than 0");
+    }
+    if(attack < 0){
+        throw new Error("'attack' value for 'basic_fm_lfo' MUST be greater or equal to 0");
+    }
+    if(sustain < 0){
+        throw new Error("'sustain' value for 'basic_fm_lfo' MUST be greater or equal to 0");
+    }
+    if(release < 0){
+        throw new Error("'release' value for 'basic_fm_lfo' MUST be greater or equal to 0");
+    }
+    if(amplitude < 0 || amplitude > 1){
+        throw new Error("'amplitude' value for 'basic_fm_lfo' MUST be between 0 and 1");
+    }
+    if(mod <= 0){
+        throw new Error("'mod' value for 'basic_fm_lfo' MUST be greater than 0");
+    }
+    if(depth < 0){
+        throw new Error("'depth' value for 'basic_fm_lfo' MUST be greater or equal to 0");
+    }
+    if(lfo <= 0){
+        throw new Error("'lfo' value for 'basic_fm_lfo' MUST be greater than 0");
+    }
+    if(pan < -1 || pan > 1){
+        throw new Error("'pan' value for 'basic_fm_lfo' MUST be between -1 and 1");
+    }
+    if(delaytime < 0){
+        throw new Error("'delaytime' value for 'basic_fm_lfo' MUST be greater or equal to 0");
+    }
+
+    const carrier = createOSC(frequency,"sine");//carrier oscillator
+    const modulator = createOSC(frequency * mod,"sine");//modulator oscillator
+    
+
+    const env = createEnvelope(amplitude,attack,sustain,release,bpm);//main envelope
+    const LFO = createOSC(lfo,"sine");//LFO
+    const LFOdepth = new GainNode(context,{gain : depth});//depth of the modulator
+    const LFOgain = new GainNode(context,{gain : 1});//gain to multiply de depth, to be controlled by the LFO
+
+    const panner = setPan(pan);//panner
+    const splitter = context.createChannelSplitter(2);//this will split the signal in two channels
+    panner.connect(splitter);//then we connect the panner to the splitter
+    //the split signal goes into the analyzers
+    splitter.connect(analyserLeft,0);//left
+    splitter.connect(analyserRight,1);//right
+
+    //modulator --> LFOdepth ---> LFOgain(LFO ---> LFOgain) --> carrier frequency
+    modulator.connect(LFOdepth);
+    LFOdepth.connect(LFOgain);
+    LFO.connect(LFOgain.gain);
+    LFOgain.connect(carrier.frequency);
+
+    //carrier --> envelope --> panner --> destination (stereo output)
+    carrier.connect(env).connect(panner).connect(context.destination);
+
+    if(delaytime){//if delaytime is greater than 0
+        if(feedback < 0 || feedback > 0.9){//we validate the feedback
+            throw new Error("'feedback' value for 'basic_fm_lfo' MUST be between 0 and 0.9");
+        }
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
+        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+
+        //then we create the feedback loop
+        env.connect(delay).connect(feedBack).connect(delay);
+
+        //and connect the delay to the destination (stereo output)
+        feedBack.connect(panner).connect(context.destination);
+    }
+
+    carrier.start(context.currentTime);
+    modulator.start(context.currentTime);
+    LFO.start(context.currentTime);
+
+    carrier.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    modulator.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    LFO.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+
+    if(nextEvent){
+        nextFunction(nextEvent);
+    }
+}
+
 
 /*
  simple_sequence ---> not really an instrument, but a utility to play a sequence starting on a base frequency and going up or down at a fixed interval
@@ -1080,5 +1180,6 @@ functions = {
     basicFmEnv,
     fmInSeries,
     fmInParallel,
+    basicFmLfo,
     simpleSequence
 };//we add all the functions to the global register
