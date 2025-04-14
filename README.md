@@ -292,6 +292,37 @@ Parameters:
 - **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
 
+### simple_sequence (not really an instrument, but a utility to play a sequence starting on a base frequency and going up or down at a fixed interval)
+
+Parameters:
+
+- **instrument:** a number representing the instrument --> 0 --> simple_wave(sine), 1 --> simple_wave(triangle), 2 --> simple_wave(square), 3 --> simple_wave(sawtooth), 4 --> basic_synth, 5 --> basic_fm. Default: 0.
+- **amount:** amount of notes to be played, must be an integer greater that 0. Default: 4.
+- **base:** a number greater than 0 representing the base frequency in hertz. Default: 100.
+- **interval:** a number greater or equal to 0 representing the interval in hertz. Default: 100.
+- **direction:** a number representig the direction --> 0 --> down, 1 --> up. Default: 1.
+- **wait:** a number greater or equal to 0 representing the wait time between notes as a multiple of the BPM. Default: 1.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 8.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 8.
+- **amplitude:** a number between 0 and 1 representing the amplitude. Default: 1.
+- **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
+- **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
+
+Extra arguments in case of instrument being **basic_synth** or **basic_fm**
+
+#### basic_synth
+
+- **cutoff:** a number greater than 0 representing the cutoff frequency for the low pass filter. Default: 20000.
+- **q:** a number between 1 and 25 representing the resonance of the filter. Default: 1.
+- **contour:** a number between 0.1 and 1 representing the time (as multiple of the duration) for the filter to go from full open to the cutoff value. Default: 0.8.
+
+#### basic_fm
+
+- **mod:** a number greater than 0 representing the frequency of the modulator as a multiple of the carrier. Default: 2.
+- **depth:** a number greater or equal to 0 representing the depth of the modulation. Default: 1000.
+
 ## adding your own functions
 
 In order to add your own functions to *éliane*, you have to go inside the 'js' folder and find the file 'functions_register.js', there, you can write your function(s), there are just a couple of rules for it to work:

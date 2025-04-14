@@ -114,8 +114,8 @@ function sillyTestSynth(nextEvent, {frequency = 100 ,attack = 0, sustain = 0, re
  */
 function simpleWave(nextEvent, {wave = 0, frequency = 100, attack = 0, sustain = 0, release = 1, amplitude = 1, pan = 0, delaytime = 0, feedback = 0.5},bpm){
     // initial validations
-    if(wave < 0 || wave > 3){
-        throw new Error("invalid 'wave' value for 'simple_wave', allowed values: 0 (sine), 1 (triangle), 2 (square) or 3 (sawtooth)");
+    if(wave < 0 || wave > 3 || wave - parseInt(wave) > 0){
+        throw new Error("invalid 'wave' value for 'simple_wave', allowed values -> 0 (sine), 1 (triangle), 2 (square) or 3 (sawtooth)");
     }
     if(frequency <= 0){
         throw new Error("'frequency' value for 'simple_wave' MUST be greater than 0");
@@ -988,6 +988,87 @@ function fmInParallel(nextEvent,{frequency = 200, attack = 0, sustain = 8, relea
 
 }
 
+
+/*
+ simple_sequence ---> not really an instrument, but a utility to play a sequence starting on a base frequency and going up or down at a fixed interval
+    instrument: a number representing the instrument --> 0 --> simple_wave(sine), 1 --> simple_wave(triangle), 2 --> simple_wave(square), 3 --> simple_wave(sawtooth), 4 --> basic_synth, 5 --> basic_fm. Default: 0.
+    amount: amount of notes to be played, must be an integer greater that 0. Default: 4.
+    base: a number greater than 0 representing the base frequency in hertz. Default: 100.
+    interval: a number greater or equal to 0 representing the interval in hertz. Default: 100.
+    direction: a number representig the direction --> 0 --> down, 1 --> up. Default: 1.
+    wait: a number greater or equal to 0 representing the wait time between notes as a multiple of the BPM. Default: 1.
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 8.
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 8.
+    amplitude: a number between 0 and 1 representing the amplitude. Default: 1.
+    pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
+    feedback: a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
+
+    extra arguments in case of instrument being basic_synth or basic_fm
+
+    basic_synth
+    cutoff: a number greater than 0 representing the cutoff frequency for the low pass filter. Default: 20000.
+    q: a number between 1 and 25 representing the resonance of the filter. Default: 1.
+    contour: a number between 0.1 and 1 representing the time (as multiple of the duration) for the filter to go from full open to the cutoff value. Default: 0.8.
+
+    basic_fm
+    mod: a number greater than 0 representing the frequency of the modulator as a multiple of the carrier. Default: 2.
+    depth: a number greater or equal to 0 representing the depth of the modulation. Default: 1000.
+ */
+
+function simpleSequence(nextEvent, {instrument = 0, amount = 4, base = 100, interval = 100, direction = 1, wait = 1, attack = 0, sustain = 0, release = 1, amplitude = 1, pan = 0, delaytime = 0, feedback = 0.5, cutoff = 20000, q = 1, contour = 0.8, mod = 2, depth = 1000},bpm){
+    // initial validations
+    if(instrument < 0 || instrument > 5 || instrument - parseInt(instrument) > 0){
+        throw new Error("invalid 'instrument' value for 'simple_sequence', allowed values -> 0 (sine), 1 (triangle), 2 (square), 3 (sawtooth), 4 (basic_synth) or 5 (basic_fm)");
+    }
+    if(amount < 1 || amount - parseInt(amount) > 0){
+        throw new Error("'amount' value for 'simple_sequence' MUST be an integer greater or equal to 1");
+    }
+    if(base <= 0){
+        throw new Error("'base' value for 'simple_sequence' MUST be greater than 0");
+    }
+    if(interval < 0){
+        throw new Error("'interval' value for 'simple_sequence' MUST be greater or equal to 0");
+    }
+    if(direction < 0 || direction > 1 || direction - parseInt(direction) > 0){
+        throw new Error("invalid 'direction' value for 'simple_sequence', allowed values -> 0 (down) or 1 (up)");
+    }
+    if(wait < 0){
+        throw new Error("'wait' value for 'simple_sequence' MUST be greater or equal to 0");
+    }
+    // there's no more validations for this function, because it's just a utility to make sub-sequences, any other error will be thrown by the corresponding "instrument"
+
+    for(let i = 0; i < amount; i++){//sequence
+        let frequency = base;//update frequency
+        setTimeout(() => {
+            //dispatch the corresponding function
+            try{
+                if(instrument < 4){
+                    simpleWave(null,{wave: instrument,frequency,attack,sustain,release,amplitude,pan,delaytime,feedback},bpm);
+                }
+                if(instrument == 4){
+                    basicSynth(null,{wave: instrument,frequency,attack,sustain,release,amplitude,pan,cutoff,q,contour,delaytime,feedback},bpm);
+                }
+                if(instrument == 5){
+                    basicFm(null,{wave: instrument,frequency,attack,sustain,release,mod,depth,amplitude,pan,delaytime,feedback},bpm);
+                }
+            }catch(error){
+                errorLog.classList.add("error");
+                let errorSplit = error.toString().split(":");
+                let errorMsg = errorSplit[1].trim() + ( errorSplit[2] ? `:${errorSplit[2]}` : "" );
+                errorLog.innerText = errorMsg;
+            }
+        }, i * wait * bpm);//wait...
+        base = direction ? base + interval : base - interval;//modify base
+    }
+
+     
+    if(nextEvent){
+        nextFunction(nextEvent);
+    }
+}
+
 functions = {
     sillyTestSynth,
     simpleWave,
@@ -998,5 +1079,6 @@ functions = {
     basicFm,
     basicFmEnv,
     fmInSeries,
-    fmInParallel
+    fmInParallel,
+    simpleSequence
 };//we add all the functions to the global register
