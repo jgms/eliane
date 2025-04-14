@@ -6,13 +6,13 @@ You can find an online working version of *éliane* [here](https://jgms.github.i
 
 *éliane* is an environment for programming electronic music, whose main concern is to **separate the sound design from the sequencing**, allowing the creation of, for a lack of a better name, "scripted scores". At its very core it's just a code based function sequencer I developed with the aim of making my workflow a little more playful and inspiring.
 
-The instruments/functions included so far are based on my [own practice](https://joaquinmendoza.bandcamp.com/album/nueve-a-os), but you can create your own functions and add them to (or completely replace) the original ones, in fact, you can extract the interpreter/sequencer and sequence whatever function(s) you want, not necessarily sound producing functions.
+The instruments/functions included so far are based on my [own practice](https://soundcloud.com/maravillosa-realidad), but you can create your own functions and add them to (or completely replace) the original ones, in fact, you can extract the interpreter/sequencer and sequence whatever function(s) you want, not necessarily sound producing functions.
 
 *éliane* is named after the great French composer [Éliane Radigue](https://en.wikipedia.org/wiki/%C3%89liane_Radigue).
 
 ## why
 
-After so many years of making music using [Pure Data](https://puredata.info/), which I consider still the greatest sound design tool there is, my patches were becoming messier and messier everytime I needed to make (sometimes not so) complex arrangements, I needed something with the simplicity yet the power of the syntax of, say, [Sonic Pi](https://sonic-pi.net/), which heavily influenced *éliane*'s syntax. I just wanted to **separate the sound design from the sequencing**, but in a way that they were easy to integrate.
+After so many years of making music using [Pure Data](https://puredata.info/), which I still consider the greatest sound design tool there is, my patches were becoming messier and messier everytime I needed to make (sometimes not so) complex arrangements, I needed something with the simplicity yet the power of the syntax of, say, [Sonic Pi](https://sonic-pi.net/), which heavily influenced *éliane*'s syntax. I just wanted to **separate the sound design from the sequencing**, but in a way that they were easy to integrate.
 
 After exploring a little (tons to learn still, though) the Web Audio API, and seeing that I could implement all (at least at first glance) my usual sound design techniques, I said: why not leave the sound design entirely in the hands of JavaScript and build a simple language on top of it to sequence everything? so, here we are.
 
