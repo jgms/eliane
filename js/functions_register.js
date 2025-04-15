@@ -1042,7 +1042,7 @@ function basicFmLfo(nextEvent,{frequency = 400, attack = 0, sustain = 0, release
     const env = createEnvelope(amplitude,attack,sustain,release,bpm);//main envelope
     const LFO = createOSC(lfo,"sine");//LFO
     const LFOdepth = new GainNode(context,{gain : depth});//depth of the modulator
-    const LFOgain = new GainNode(context,{gain : 1});//gain to multiply de depth, to be controlled by the LFO
+    const LFOgain = new GainNode(context,{gain : 0.5});//gain to multiply de depth, to be controlled by the LFO
 
     const panner = setPan(pan);//panner
     const splitter = context.createChannelSplitter(2);//this will split the signal in two channels
