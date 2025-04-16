@@ -42,28 +42,6 @@ function createEnvelope(amplitude, attack, sustain, release,bpm){//this function
     
     return envelope;
 }
-
-/* 
-this will create a phase shifted sine wave oscillator, how to use it:
-
-const lfoWaveform = createLFOWaveform(phase);
-const lfoSource = context.createBufferSource();
-lfoSource.buffer = lfoWaveform;
-lfoSource.loop = true; // Loop the LFO waveform
-lfoSource.playbackRate.value = LFOfreq; // Set the LFO frequency
-
-*/
-function createLFOWaveform(phase) {
-    const buffer = context.createBuffer(1, context.sampleRate, context.sampleRate);//we create an audio buffer of one channel, the length is the same as the sample rate as we are going to loop it later
-    const data = buffer.getChannelData(0);//we extract the data array
-
-    for (let i = 0; i < data.length; i++) {//then we are going to fill the array with a periodic waveform (sine in this case)
-        const t = i / context.sampleRate;//the exact moment(second) "in time"
-        data[i] = Math.sin(2 * Math.PI * t + phase); // "sin" function expects radians, so we convert the time into radians (2 * Math.PI * t) and apply the phase shift (0 is the beggining at the bottom, Math.PI / 2 is at the top (90 degrees)
-    }
-
-    return buffer;
-}
 /*
     this will generate white noise, how to use it:
 
