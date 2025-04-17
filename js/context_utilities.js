@@ -64,6 +64,26 @@ function generateWhiteNoise(duration) {
 
     return buffer;
 }
+/*
+    ring modulation
+    wave --> 0,1,2,3 --> sine,triangle,square,sawtooth
+    duration --> seconds to stop the modulator oscillator
+*/
+function ringMod(wave,frequency,duration){
+    const ringModulator = new GainNode(context);//gain to multiply the signals
+
+    const waves = ["sine","triangle","square","sawtooth"];//waveforms
+
+    const modulator = createOSC(frequency,waves[wave]);//modulator
+
+    modulator.connect(ringModulator.gain);//we are modulating the gain value
+
+    //start/stop modulator
+    modulator.start(context.currentTime);
+    modulator.stop(context.currentTime + duration);
+
+    return ringModulator;
+}
 
 function setPan(pan){ //-1(left) 0 1(right)
     return new StereoPannerNode(context,{pan});// a stereo panner node =)

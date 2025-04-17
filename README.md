@@ -157,6 +157,22 @@ Parameters:
 - **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
 
+### simple_wave_ring
+
+Parameters:
+
+- **wave:** a number representing the waveform --> 0 -> sine, 1 -> triangle, 2 -> square, 3 -> sawtooth. Default: 0.
+- **frequency:** a number greater than 0 representing the frequency in hertz. Default: 500.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0. 
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 0.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 8.
+- **amplitude:** a number between 0 and 1 representing the amplitude. Default: 1.
+- **modfreq:** a number greater than 0 representing the frequency of the modulator in hertz. Default: 150.
+- **modwave:** a number representing the waveform of the modulator --> 0 -> sine, 1 -> triangle, 2 -> square, 3 -> sawtooth. Default: 2.
+- **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
+- **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
+
 ### simple_wave_lfo
 
 Parameters:
@@ -169,6 +185,24 @@ Parameters:
 - **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 0.
 - **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 8.
 - **amplitude:** a number between 0 and 1 representing the amplitude. Default: 1.
+- **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
+- **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
+
+### simple_wave_lfo_ring
+
+Parameters:
+
+- **wave:** a number representing the waveform --> 0 -> sine, 1 -> triangle, 2 -> square, 3 -> sawtooth. Default: 0.
+- **bottom:** a number greater than 0 representing the bottom frequency in hertz. Default: 400.
+- **top:** a number greater than 'bottom' representing the top frequency in hertz. Default: 600.
+- **lfo:** a number greater than 0 representing the frequency of the LFO in hertz. Default: 10.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0. 
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 0.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 8.
+- **amplitude:** a number between 0 and 1 representing the amplitude. Default: 1.
+- **modfreq:** a number greater than 0 representing the frequency of the modulator in hertz. Default: 500.
+- **modwave:** a number representing the waveform of the modulator --> 0 -> sine, 1 -> triangle, 2 -> square, 3 -> sawtooth. Default: 1.
 - **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
 - **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
