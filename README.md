@@ -157,6 +157,21 @@ Parameters:
 - **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
 
+### simple_wave_gliss
+
+Parameters:
+
+- **wave:** a number representing the waveform --> 0 -> sine, 1 -> triangle, 2 -> square, 3 -> sawtooth. Default: 0.
+- **start:** a number greater than 0 representing the initial frequency in hertz. Default: 800.
+- **end:** a number greater than 0 representing the final frequency in hertz. Default: 100.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0. 
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 4.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 1.
+- **amplitude:** a number between 0 and 1 representing the amplitude. Default: 1.
+- **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
+- **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
+
 ### simple_wave_ring
 
 Parameters:
@@ -308,6 +323,24 @@ Parameters:
 - **mod:** a number greater than 0 representing the frequency of the modulator as a multiple of the carrier. Default: 0.25.
 - **depth:** a number greater or equal to 0 representing the depth of the modulation. Default: 1000.
 - **lfo:** a number greater than 0 representing the frequency of the LFO in hertz. Default: 0.5. 
+- **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
+- **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
+
+### basic_fm_lfo_gliss
+
+Parameters:
+
+- **start:** a number greater than 0 representing the initial frequency in hertz. Default: 2000.
+- **end:** a number greater than 0 representing the final frequency in hertz. Default: 100.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 8.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 1.
+- **amplitude:** a number between 0 and 1 representing the amplitude. Default: 1.
+- **mod:** a number greater than 0 representing the frequency of the modulator as a multiple of the carrier. Default: 0.125.
+- **depth:** a number greater or equal to 0 representing the depth of the modulation. Default: 1000.
+- **lfo:** a number greater than 0 representing the frequency of the LFO in hertz. Default: 0.3. 
+- **modgliss:** a number that defines if the modulator slides along with the carrier, allowed values --> 0 -> fixed, 1 -> sliding. Default: 1.
 - **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
 - **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.

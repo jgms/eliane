@@ -182,6 +182,94 @@ function simpleWave(nextEvent, {wave = 0, frequency = 100, attack = 0, sustain =
 }
 
 /*
+ simple_wave_gliss
+    wave: a number representing the waveform --> 0 -> sine, 1 -> triangle, 2 -> square, 3 -> sawtooth
+    start: a number greater than 0 representing the initial frequency in hertz
+    end: a number greater than 0 representing the final frequency in hertz
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM
+    amplitude: a number between 0 and 1 representing the amplitude
+    pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay
+    feedback: a number between 0 and 0.9 to control the delay's feedback
+ */
+function simpleWaveGliss(nextEvent, {wave = 0, start = 800, end = 100, attack = 0, sustain = 4, release = 1, amplitude = 1, pan = 0, delaytime = 0, feedback = 0.5},bpm){
+    // initial validations
+    if(wave < 0 || wave > 3 || wave - parseInt(wave) > 0){
+        throw new Error("invalid 'wave' value for 'simple_wave_gliss', allowed values -> 0 (sine), 1 (triangle), 2 (square) or 3 (sawtooth)");
+    }
+    if(start <= 0){
+        throw new Error("'start' value for 'simple_wave_gliss' MUST be greater than 0");
+    }
+    if(end <= 0){
+        throw new Error("'end' value for 'simple_wave_gliss' MUST be greater than 0");
+    }
+    if(attack < 0){
+        throw new Error("'attack' value for 'simple_wave_gliss' MUST be greater or equal to 0");
+    }
+    if(sustain < 0){
+        throw new Error("'sustain' value for 'simple_wave_gliss' MUST be greater or equal to 0");
+    }
+    if(release < 0){
+        throw new Error("'release' value for 'simple_wave_gliss' MUST be greater or equal to 0");
+    }
+    if(amplitude < 0 || amplitude > 1){
+        throw new Error("'amplitude' value for 'simple_wave_gliss' MUST be between 0 and 1");
+    }
+    if(pan < -1 || pan > 1){
+        throw new Error("'pan' value for 'simple_wave_gliss' MUST be between -1 and 1");
+    }
+    if(delaytime < 0){
+        throw new Error("'delaytime' value for 'simple_wave_gliss' MUST be greater or equal to 0");
+    }
+
+    const waves = ["sine","triangle","square","sawtooth"];//waveforms
+
+    const oscillator = createOSC(start,waves[wave]);//oscillator
+
+    const env = createEnvelope(amplitude,attack,sustain,release,bpm);//envelope
+
+
+    const panner = setPan(pan);//panner
+    const splitter = context.createChannelSplitter(2);//this will split the signal in two channels
+    panner.connect(splitter);//then we connect the panner to the splitter
+    //the split signal goes into the analyzers
+    splitter.connect(analyserLeft,0);//left
+    splitter.connect(analyserRight,1);//right
+
+
+    //oscillator --> envelope --> panner --> destination (stereo output)
+    oscillator.connect(env).connect(panner).connect(context.destination);
+
+    if(delaytime){//if delaytime is greater than 0
+        if(feedback < 0 || feedback > 0.9){//we validate the feedback
+            throw new Error("'feedback' value for 'simple_wave_gliss' MUST be between 0 and 0.9");
+        }
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
+        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+
+        //then we create the feedback loop
+        env.connect(delay).connect(feedBack).connect(delay);
+
+        //and connect the delay to the destination (stereo output)
+        feedBack.connect(panner).connect(context.destination);
+    }
+
+    oscillator.start(context.currentTime);
+    oscillator.frequency.cancelScheduledValues(context.currentTime);
+    oscillator.frequency.setValueAtTime(start,context.currentTime);
+    oscillator.frequency.linearRampToValueAtTime(end,context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+
+    oscillator.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    
+    if(nextEvent){
+        nextFunction(nextEvent);
+    }
+}
+
+/*
  simple_wave_ring
     wave: a number representing the waveform --> 0 -> sine, 1 -> triangle, 2 -> square, 3 -> sawtooth
     frequency: a number greater than 0 representing the frequency in hertz
@@ -1134,6 +1222,122 @@ function basicFmLfo(nextEvent,{frequency = 400, attack = 0, sustain = 0, release
 }
 
 /*
+ basic_fm_lfo_gliss
+    start: a number greater than 0 representing the initial frequency in hertz
+    end: a number greater than 0 representing the final frequency in hertz
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM
+    amplitude: a number between 0 and 1 representing the amplitude
+    mod: a number greater than 0 representing the frequency of the modulator as a multiple of the carrier
+    depth: a number greater or equal to 0 representing the depth of the modulation
+    lfo: a number greater than 0 representing the frequency of the LFO in hertz 
+    modgliss: a number that defines if the modulator slides along with the carrier, allowed values --> 0 -> fixed, 1 -> sliding
+    pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay
+    feedback: a number between 0 and 0.9 to control the delay's feedback
+ */
+function basicFmLfoGliss(nextEvent,{start = 2000, end = 100, attack = 0, sustain = 8, release = 1, amplitude = 1, mod = 0.125, depth = 1000, lfo = 0.3, modgliss = 1, pan = 0, delaytime = 0, feedback = 0.5},bpm){
+    // initial validations
+    if(start <= 0){
+        throw new Error("'start' value for 'basic_fm_lfo_gliss' MUST be greater than 0");
+    }
+    if(end <= 0){
+        throw new Error("'end' value for 'basic_fm_lfo_gliss' MUST be greater than 0");
+    }
+    if(attack < 0){
+        throw new Error("'attack' value for 'basic_fm_lfo_gliss' MUST be greater or equal to 0");
+    }
+    if(sustain < 0){
+        throw new Error("'sustain' value for 'basic_fm_lfo_gliss' MUST be greater or equal to 0");
+    }
+    if(release < 0){
+        throw new Error("'release' value for 'basic_fm_lfo_gliss' MUST be greater or equal to 0");
+    }
+    if(amplitude < 0 || amplitude > 1){
+        throw new Error("'amplitude' value for 'basic_fm_lfo_gliss' MUST be between 0 and 1");
+    }
+    if(mod <= 0){
+        throw new Error("'mod' value for 'basic_fm_lfo_gliss' MUST be greater than 0");
+    }
+    if(depth < 0){
+        throw new Error("'depth' value for 'basic_fm_lfo_gliss' MUST be greater or equal to 0");
+    }
+    if(lfo <= 0){
+        throw new Error("'lfo' value for 'basic_fm_lfo_gliss' MUST be greater than 0");
+    }
+    if(modgliss != 0 && modgliss != 1){
+        throw new Error("invalid 'modgliss' value for 'basic_fm_lfo_gliss', allowed values --> 0 --> fixed or 1 --> sliding");
+    }
+    if(pan < -1 || pan > 1){
+        throw new Error("'pan' value for 'basic_fm_lfo_gliss' MUST be between -1 and 1");
+    }
+    if(delaytime < 0){
+        throw new Error("'delaytime' value for 'basic_fm_lfo_gliss' MUST be greater or equal to 0");
+    }
+
+    const carrier = createOSC(start,"sine");//carrier oscillator
+    const modulator = createOSC(start * mod,"sine");//modulator oscillator
+    
+
+    const env = createEnvelope(amplitude,attack,sustain,release,bpm);//main envelope
+    const LFO = createOSC(lfo,"sine");//LFO
+    const LFOdepth = new GainNode(context,{gain : depth});//depth of the modulator
+    const LFOgain = new GainNode(context,{gain : 0.5});//gain to multiply the depth, to be controlled by the LFO
+
+    const panner = setPan(pan);//panner
+    const splitter = context.createChannelSplitter(2);//this will split the signal in two channels
+    panner.connect(splitter);//then we connect the panner to the splitter
+    //the split signal goes into the analyzers
+    splitter.connect(analyserLeft,0);//left
+    splitter.connect(analyserRight,1);//right
+
+    //modulator --> LFOdepth ---> LFOgain(LFO ---> LFOgain) --> carrier frequency
+    modulator.connect(LFOdepth);
+    LFOdepth.connect(LFOgain);
+    LFO.connect(LFOgain.gain);
+    LFOgain.connect(carrier.frequency);
+
+    //carrier --> envelope --> panner --> destination (stereo output)
+    carrier.connect(env).connect(panner).connect(context.destination);
+
+    if(delaytime){//if delaytime is greater than 0
+        if(feedback < 0 || feedback > 0.9){//we validate the feedback
+            throw new Error("'feedback' value for 'basic_fm_lfo_gliss' MUST be between 0 and 0.9");
+        }
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
+        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+
+        //then we create the feedback loop
+        env.connect(delay).connect(feedBack).connect(delay);
+
+        //and connect the delay to the destination (stereo output)
+        feedBack.connect(panner).connect(context.destination);
+    }
+
+    carrier.start(context.currentTime);
+    carrier.frequency.cancelScheduledValues(context.currentTime);
+    carrier.frequency.setValueAtTime(start,context.currentTime);
+    carrier.frequency.linearRampToValueAtTime(end,context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    modulator.start(context.currentTime);
+    if(modgliss){
+        modulator.frequency.cancelScheduledValues(context.currentTime);
+        modulator.frequency.setValueAtTime(start * mod,context.currentTime);
+        modulator.frequency.linearRampToValueAtTime(end * mod,context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    }
+    LFO.start(context.currentTime);
+
+    carrier.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    modulator.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    LFO.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+
+    if(nextEvent){
+        nextFunction(nextEvent);
+    }
+}
+
+/*
  fm_in_series
     frequency: a number greater than 0 representing the frequency in hertz. Default: 200.
     attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
@@ -1474,6 +1678,7 @@ function simpleSequence(nextEvent, {instrument = 0, amount = 4, base = 100, inte
 functions = {
     sillyTestSynth,
     simpleWave,
+    simpleWaveGliss,
     simpleWaveRing,
     simpleWaveLfo,
     simpleWaveLfoRing,
@@ -1483,8 +1688,9 @@ functions = {
     bassLine,
     basicFm,
     basicFmEnv,
+    basicFmLfo,
+    basicFmLfoGliss,
     fmInSeries,
     fmInParallel,
-    basicFmLfo,
     simpleSequence
 };//we add all the functions to the global register
