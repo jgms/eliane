@@ -790,7 +790,7 @@ function basicSynth(nextEvent, {frequency = 100 , detune = 1, attack = 0, sustai
     LPF.frequency.cancelScheduledValues(context.currentTime);
     LPF.frequency.setValueAtTime(20000, context.currentTime);
     LPF.frequency.linearRampToValueAtTime(20000, context.currentTime + pulseToSeconds(attack,bpm));
-    LPF.frequency.exponentialRampToValueAtTime(cutoff, context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(contour,bpm));//CONTOUR
+    LPF.frequency.exponentialRampToValueAtTime(cutoff, context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds((sustain + release) * contour,bpm));//CONTOUR
 
 
     const panner = setPan(pan);//panner
