@@ -24,7 +24,7 @@ function stopPlaying(){
     }
 }
 
-let example = examples[Math.floor(Math.random() * examples.length)];
+let example = examples[0];
 
 textArea.value = example;
 

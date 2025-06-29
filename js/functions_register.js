@@ -1604,8 +1604,8 @@ function fmInParallel(nextEvent,{frequency = 200, attack = 0, sustain = 8, relea
     direction: a number representig the direction --> 0 --> down, 1 --> up. Default: 1.
     wait: a number greater or equal to 0 representing the wait time between notes as a multiple of the BPM. Default: 1.
     attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM. Default: 0.
-    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 8.
-    release: a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 8.
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Default: 0.
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM. Default: 1.
     amplitude: a number between 0 and 1 representing the amplitude. Default: 1.
     pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
     delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
