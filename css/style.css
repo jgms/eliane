@@ -57,9 +57,12 @@ textarea{
     color:white;
 }
 .info a{
+    color:blue;
+}
+
+.docs{
     display:inline-block;
     margin-top:10px;
-    color:blue;
 }
 
 .info p{
