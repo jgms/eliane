@@ -2,7 +2,7 @@
 
 function startPlaying(){
     errorLog.classList.remove("error");
-    errorLog.innerText = "Welcome to éliane! just press play to execute the silly example on the left, or check the docs to make your own music.";
+    errorLog.innerHTML = 'Welcome to éliane! just press play to execute the silly example on the left, or check the docs to make your own music. For more examples you can go <a href="https://github.com/jgms/construye-un-castillo" target="_blank">here</a>.';
     try{
         transformer(giveMeMyAST(lexer(textArea.value)));
         context.resume();//resume the context

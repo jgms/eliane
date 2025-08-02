@@ -2,6 +2,8 @@ As with any other sound producing software, remember to **be careful with your e
 
 You can find an online working version of *éliane* [here](https://jgms.github.io/eliane/). But the real fun starts once you download it and start making your own sounds. For the time being, *éliane* is not available for mobile devices.
 
+If you want to listen to (or play with) some examples you can go [here](https://github.com/jgms/construye-un-castillo).
+
 ## what
 
 *éliane* is an environment for programming electronic music, whose main concern is to **separate the sound design from the sequencing**, allowing the creation of, for a lack of a better name, "scripted scores". At its very core it's just a code based function sequencer I developed with the aim of making my workflow a little more playful and inspiring.
