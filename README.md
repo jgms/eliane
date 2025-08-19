@@ -2,7 +2,7 @@ As with any other sound producing software, remember to **be careful with your e
 
 You can find an online working version of *éliane* [here](https://jgms.github.io/eliane/). But the real fun starts once you download it and start making your own sounds. For the time being, *éliane* is not available for mobile devices.
 
-If you want to listen to (or play with) some examples you can go [here](https://github.com/jgms/construye-un-castillo).
+If you want to see some examples you can go [here](https://github.com/jgms/construye-un-castillo), and if you only want to listen to said examples, you can go [here](https://soundcloud.com/construye-un-castillo/sets/cuaderno-de-apuntes).
 
 ## what
 
