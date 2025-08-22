@@ -108,3 +108,27 @@ function updateAmplitudeDisplay() {
     requestAnimationFrame(updateAmplitudeDisplay);
 }
 updateAmplitudeDisplay();//go! go!! go!!!
+
+/*
+    utilities: any function that doesn't produce a sound, like random numbers generator and stuff like that, in order to be recognized by éliane, every function must be added to the utilities array (declared in globals.js)
+
+*/
+//random number generator
+function aZRotate({min = 0, max = 10, integer = 1}) {
+    if(min > max){
+        throw new Error("invalid values for 'a_z_rotate', 'max' MUST be greater than 'min'");
+    }
+    if(integer < 0 || integer > 1 || integer - parseInt(integer) > 0){
+        throw new Error("invalid 'integer' value for 'a_z_rotate', allowed values -> 0 (no) or 1 (yes)");
+    }
+    if(integer){
+        return variables.random = Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    let n = Math.random() * (max - min) + min;
+    // not so proud of this way of including max but.... 
+    variables.random = Math.random() > 0.9 ? max : n;
+}
+utilities.push({
+    name : "a_z_rotate",
+    function : aZRotate
+});

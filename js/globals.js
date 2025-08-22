@@ -22,12 +22,19 @@ let bpm = 1000; //our default value for PULSE: 60 bpm
 
 let wait = 0; //this will track the current wait time, and will be reset everytime we push an event into the sequence array
 
-let variables = {};//we'll store here all the declared variables for the sequence
+let variables = {
+    random : 0 //this will hold any vallue generated with the aZRotate function located in context_utilities.js
+};//we'll store here all the declared variables for the sequence
 
 
 let sequenceIndex = 0;//where we are in the sequence
 
 let functions = null;//will be an object we'll populate in the functions_register.js file
+
+let utilities = [];//we'll populate this in the context_utilities.js file as we add function utilities to éliane
+/*
+    utilities must be registered this way --> { name : 'the_name', function : theFunction }
+*/
 
 /*
 nextFunction

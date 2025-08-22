@@ -617,7 +617,9 @@ function transformer(ast,main = true){//main will indicate if we are transformin
     if(main){
         bpm = 1000;
         wait = 0;
-        variables = {};
+        variables = {
+            random : 0
+        };
         sequence.length = 0;
     }
 
@@ -770,17 +772,33 @@ function transformer(ast,main = true){//main will indicate if we are transformin
                 args[key] = getValue(args[key],"number",`argument '${key}' from function '${name}' only accepts numeric values.`);
             }
 
+            //we then check if the function is an utility
+            let isUtility = false;
+            let whichUtility = 0;
+            for(let i = 0; i < utilities.length; i++){
+                if(utilities[i].name == name){
+                    isUtility = true;
+                    whichUtility = i;
+                }
+            }
 
-            let event = {
-                //we change the name to camel case --> some_thing --> someThing
-                functionName : name.split("_").map((word,i) => i > 0 ? word.slice(0,1).toUpperCase() + word.slice(1) : word).join(""),
-                wait, //the wait is our global variable of the same name
-                args,
-                bpm //the CURRENT bpm to be used in envelopes and delay times
-            };
+            if(isUtility){
+                //if it is, we use it
+                utilities[whichUtility].function(args);
+            }else{
+                //if it's not a utility, then it's a sound event, so we add it to the sequence
+                let event = {
+                    //we change the name to camel case --> some_thing --> someThing
+                    functionName : name.split("_").map((word,i) => i > 0 ? word.slice(0,1).toUpperCase() + word.slice(1) : word).join(""),
+                    wait, //the wait is our global variable of the same name
+                    args,
+                    bpm //the CURRENT bpm to be used in envelopes and delay times
+                };
 
-            sequence.push(event);//we push the event
-            wait = 0;//reset the wait time
+                sequence.push(event);//we push the event
+                wait = 0;//reset the wait time
+            }
+
             astIndex++;
             continue;//and move on...
         }
@@ -790,7 +808,11 @@ function transformer(ast,main = true){//main will indicate if we are transformin
             let {times,what} = ast[astIndex]; //we extract the times and what properties
 
             //then we'll take the times value and will get its actual value (it could be referencing a variable)
-            times = getValue(times,"number","invalid argument for 'repeat', it has to be a number or a numeric value.");
+            times = getValue(times,"number","invalid argument for 'repeat', it has to be a numeric value.");
+
+            if(times < 0){
+                throw new Error(`'repeat' cannot have negative values.`);
+            }
 
             for(let i = 0; i < times; i++){
                 transformer(what,false);//here we go!!
