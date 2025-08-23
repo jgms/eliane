@@ -48,7 +48,6 @@ zoomButtons.forEach((button,i) => {
 fetch("/eliane/samples/samples.json") //if you're serving this locally, remove the '/eliane' segment from the URL
 .then(res => res.json())
 .then(async ({urls}) => { 
-    console.log(urls);
     /*
         urls : [ an array where each index represents a folder in the samples folder in the order in which we want it to be loaded, each folder will become a "bank"
             [ 
