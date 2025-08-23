@@ -2079,6 +2079,180 @@ function loopSampleLfo(nextEvent, {bank = 0, sample = 0, reverse = 0, top = 1.4,
         nextFunction(nextEvent);
     }
 }
+/*
+slide_sample
+    bank: a number greater or equal to 0 representing the sample bank where to look for the sample. Default: 2.
+    sample: a number greater or equal to 0 representing the sample in the selected bank. Default: 6.
+    startrate: a number greater than 0 representing the playing rate at the start of the slide (1 is the normal speed, greater to 1 means faster, and less than 1 means slower). Default: 1.
+    endrate: a number greater than 0 representing the playing rate at the end of the slide (1 is the normal speed, greater to 1 means faster, and less than 1 means slower). Default: 0.1.
+    slidetime: a number greater than 0 representing the amount of time as a multiple of the BPM that will take the sample to go from the 'startrate' to the 'endrate', if there is not enough sample to do the slide, the sample will stop playing once it reaches its end, otherwise it will continue playing at the 'endrate' for the remaining duration of the sample. Default: 4.
+    reverse: a number that defines if the sample will be played normal or backwards, allowed values --> 0 -> no, 1 -> yes. Default: 0.
+    envelope: a number that defines if the sample will be played with an envelope, allowed values --> 0 -> no, 1 -> yes. Default: 0.
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 0.
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 0.
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 1.
+    amplitude: a number between 0 and 1 representing the amplitude. Default: 0.5.
+    pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
+    feedback: a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
+*/
+function slideSample(nextEvent, {bank = 2, sample = 6, startrate = 1, endrate = 0.1, slidetime = 4, reverse = 0, envelope = 0, attack = 0, sustain = 0, release = 1, amplitude = 0.5, pan = 0, delaytime = 0, feedback = 0.5},bpm){
+    // initial validations
+    if(samples.length == 0){
+        throw new Error("there are no samples to play");
+    }
+    if(bank >= samples.length){
+        throw new Error(`the sample bank '${bank}' doesn't exist`);
+    }
+    if(sample >= samples[bank].length){
+        throw new Error(`the sample bank '${bank}' doesn't have a '${sample}' sample`);
+    }
+    if(startrate <= 0){
+        throw new Error("'startrate' value for 'slide_sample' MUST be greater than 0");
+    }
+    if(endrate <= 0){
+        throw new Error("'endrate' value for 'slide_sample' MUST be greater than 0");
+    }
+    if(slidetime <= 0){
+        throw new Error("'slidetime' value for 'slide_sample' MUST be greater than 0");
+    }
+    if(reverse < 0 || reverse > 1 || reverse - parseInt(reverse) > 0){
+        throw new Error("invalid 'reverse' value for 'slide_sample', allowed values -> 0 (no) or 1 (yes)");
+    }
+    if(envelope < 0 || envelope > 1 || envelope - parseInt(envelope) > 0){
+        throw new Error("invalid 'envelope' value for 'slide_sample', allowed values -> 0 (no) or 1 (yes)");
+    }
+    if(envelope){
+        if(attack < 0){
+            throw new Error("'attack' value for 'slide_sample' MUST be greater or equal to 0");
+        }
+        if(sustain < 0){
+            throw new Error("'sustain' value for 'slide_sample' MUST be greater or equal to 0");
+        }
+        if(release < 0){
+            throw new Error("'release' value for 'slide_sample' MUST be greater or equal to 0");
+        }
+    }
+    if(amplitude < 0 || amplitude > 1){
+        throw new Error("'amplitude' value for 'slide_sample' MUST be between 0 and 1");
+    }
+    if(pan < -1 || pan > 1){
+        throw new Error("'pan' value for 'slide_sample' MUST be between -1 and 1");
+    }
+    if(delaytime < 0){
+        throw new Error("'delaytime' value for 'slide_sample' MUST be greater or equal to 0");
+    }
+
+    //buffer source to play the sample
+    const source = context.createBufferSource();
+    
+    //which sample? depending on the 'reverse' value, we'll use the buffer as it is or we'll reverse it
+    if(reverse){
+        //we create a temporal buffer to store the reversed data
+        let reversedBuffer = context.createBuffer(
+            samples[bank][sample].numberOfChannels,
+            samples[bank][sample].length,
+            samples[bank][sample].sampleRate
+        );
+        // then we reverse the data
+        for (let channel = 0; channel < samples[bank][sample].numberOfChannels; channel++) {
+            const channelData = samples[bank][sample].getChannelData(channel);
+            const reversedData = reversedBuffer.getChannelData(channel);
+            for (let i = 0; i < channelData.length; i++) {
+                reversedData[i] = channelData[channelData.length - 1 - i];
+            }
+        }
+        source.buffer = reversedBuffer; //we select the reversed buffer
+    }else{
+        //otherwise we use it as it is
+        source.buffer = samples[bank][sample];
+    }
+
+    
+    let env = null;
+
+    if(envelope){
+        env = createEnvelope(amplitude,attack,sustain,release,bpm);//envelope
+    }else{
+        env = new GainNode(context, { gain : amplitude });
+    }
+
+    const panner = setPan(pan);//panner
+    const splitter = context.createChannelSplitter(2);//this will split the signal in two channels
+    panner.connect(splitter);//then we connect the panner to the splitter
+    //the split signal goes into the analyzers
+    splitter.connect(analyserLeft,0);//left
+    splitter.connect(analyserRight,1);//right
+
+
+    //oscillator --> envelope --> panner --> destination (stereo output)
+    source.connect(env).connect(panner).connect(context.destination);
+
+    if(delaytime){//if delaytime is greater than 0
+        if(feedback < 0 || feedback > 0.9){//we validate the feedback
+            throw new Error("'feedback' value for 'slide_sample' MUST be between 0 and 0.9");
+        }
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
+        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+
+        //then we create the feedback loop
+        env.connect(delay).connect(feedBack).connect(delay);
+
+        //and connect the delay to the destination (stereo output)
+        feedBack.connect(panner).connect(context.destination);
+    }
+
+    /*
+    now we are going straight into the tricky part, we are going to calculate the resulting duration after the ramp (the one we are about to make), so if the time needed to make the ramp is longer (or equal) than the sample's original duration, we'll stop it once the ramp finishes, otherwise we'll let the sample play at the 'endrate' until it ends
+    */
+
+    //first we convert the slidetime to seconds
+    slidetime = pulseToSeconds(slidetime,bpm);
+    //time needed to make the ramp, this represents how much time (duration of the sample) in a perfect situation we need to make the ramp
+    let timeNeeded = slidetime * (startrate + endrate) / 2;
+
+    let duration = 0; //here we'll store the resulting duration
+
+    if(source.buffer.duration <= timeNeeded){
+        /*
+        ok, Xenakis I'm summoning you!!!!
+        if the duration of the sample is less or equal than the time needed, it means that we run out of sample to complete the ramp
+        so... we are trying to find the exact point when we run out of "original duration", that will be our resulting duration:
+
+        if we want to know how much of the sample we've consumed at a given time (t)
+
+        startrate * t + ((endrate - startrate) / (2 * slidetime)) * t^2
+
+        so, if we subtract from the above the original duration and the result is 0, we ran out of sample...,then we end up with something like the quadratic equation: a * t^2 + b * t + c = 0
+
+
+        ((endrate - startrate) / (2 * slidetime)) * t^2 + startrate * t - duration = 0
+
+        we'll solve it with the quadratic formula, taking the positive root, in this case we are talking about duration and it can't be negative
+        (-b + Math.sqrt(b*b - 4*a*c)) / (2*a)
+        */
+
+        let a = (endrate - startrate) / (2 * slidetime);
+        let b = startrate;
+        let c = -source.buffer.duration; //we are subtracting this...
+
+        duration = (-b + Math.sqrt(b*b - 4*a*c)) / (2*a);
+    }else{
+        //well, here we just add the slidetime and the time we need to consume the rest of the sample at the new rate, that's it!!!
+        duration = slidetime + (source.buffer.duration - timeNeeded) / endrate;
+    }
+
+    source.playbackRate.setValueAtTime(startrate,context.currentTime);
+    source.playbackRate.linearRampToValueAtTime(endrate,context.currentTime + slidetime);
+
+    source.start(context.currentTime);
+    source.stop(context.currentTime + duration);
+    
+    if(nextEvent){
+        nextFunction(nextEvent);
+    }
+}
 
 functions = {
     sillyTestSynth,
@@ -2100,5 +2274,6 @@ functions = {
     simpleSequence,
     playSample,
     loopSample,
-    loopSampleLfo
+    loopSampleLfo,
+    slideSample
 };//we add all the functions to the global register
