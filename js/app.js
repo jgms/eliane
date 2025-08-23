@@ -45,7 +45,7 @@ zoomButtons.forEach((button,i) => {
 });
 
 //get samples
-fetch("/samples/samples.json")
+fetch("/eliane/samples/samples.json") //if you're serving this locally, remove the '/eliane' segment from the URL
 .then(res => res.json())
 .then(async ({urls}) => { 
     /*
