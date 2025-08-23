@@ -67,6 +67,7 @@ fetch("/samples/samples.json")
                 }))
             );
         }
+        errorLog.innerHTML = 'Welcome to éliane! just press play to execute the silly example on the left, or check the docs to make your own music. For more examples you can go <a href="https://github.com/jgms/construye-un-castillo" target="_blank">here</a>.';
     }catch(error){
         errorLog.innerText = "there was a problem loading the samples, check you samples.json file for any syntax/path errors.";
     }
