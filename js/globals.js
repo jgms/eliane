@@ -35,6 +35,7 @@ let utilities = [];//we'll populate this in the context_utilities.js file as we 
 /*
     utilities must be registered this way --> { name : 'the_name', function : theFunction }
 */
+let samples = []; //this will store the sound buffers to be played as samples, those samples will be loaded in app.js
 
 /*
 nextFunction

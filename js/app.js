@@ -43,3 +43,31 @@ zoomButtons.forEach((button,i) => {
         textArea.style.fontSize = fontSize + "em";
     });
 });
+
+//get samples
+fetch("/samples/samples.json")
+.then(res => res.json())
+.then(async ({urls}) => { 
+    /*
+        urls : [ an array where each index represents a folder in the samples folder in the order in which we want it to be loaded, each folder will become a "bank"
+            [ 
+                "urls for every sample in each folder",
+                "in the order in which we want them to be loaded",
+                "/folder_name/sample_name.wav"
+            ]
+        ]
+    */
+    try{
+        for(let i = 0; i < urls.length; i++){
+            samples.push(
+                await Promise.all(urls[i].map(url => {
+                    return fetch("/samples" + url)
+                    .then(res => res.arrayBuffer())
+                    .then(data => context.decodeAudioData(data));
+                }))
+            );
+        }
+    }catch(error){
+        errorLog.innerText = "there was a problem loading the samples, check you samples.json file for any syntax/path errors.";
+    }
+});
