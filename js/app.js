@@ -48,6 +48,7 @@ zoomButtons.forEach((button,i) => {
 fetch("/eliane/samples/samples.json") //if you're serving this locally, remove the '/eliane' segment from the URL
 .then(res => res.json())
 .then(async ({urls}) => { 
+    console.log(urls);
     /*
         urls : [ an array where each index represents a folder in the samples folder in the order in which we want it to be loaded, each folder will become a "bank"
             [ 
@@ -69,6 +70,7 @@ fetch("/eliane/samples/samples.json") //if you're serving this locally, remove t
         }
         errorLog.innerHTML = 'Welcome to éliane! just press play to execute the silly example on the left, or check the docs to make your own music. For more examples you can go <a href="https://github.com/jgms/construye-un-castillo" target="_blank">here</a>.';
     }catch(error){
+        errorLog.classList.add("error");
         errorLog.innerText = "there was a problem loading the samples, check you samples.json file for any syntax/path errors.";
     }
 });
