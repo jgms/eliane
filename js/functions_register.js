@@ -1928,6 +1928,157 @@ function loopSample(nextEvent, {bank = 0, sample = 0, rate = 1, duration = 4, en
         nextFunction(nextEvent);
     }
 }
+/*
+loop_sample_lfo
+    bank: a number greater or equal to 0 representing the sample bank where to look for the sample. Default: 0.
+    sample: a number greater or equal to 0 representing the sample in the selected bank. Default: 0.
+    reverse: a number that defines if the sample will be played normal or backwards, allowed values --> 0 -> no, 1 -> yes. Default: 0.
+    bottom: a number greater than 0 representing the bottom playing rate (1 is the normal speed, greater to 1 means faster, and less than 1 means slower). Default: 0.2.
+    top: a number greater than 'bottom' representing the top playing rate (1 is the normal speed, greater to 1 means faster, and less than 1 means slower). Default: 1.4.
+    lfo: a number greater than 0 representing the frequency of the LFO in hertz. Default: 0.2. 
+    duration: a number greater than 0 representing the amount of time as a multiple of the BPM that the sample will be playing in a loop. Default: 4.
+    envelope: a number that defines if the sample will be played with an envelope, allowed values --> 0 -> no, 1 -> yes. Default: 0.
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 0.
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 0.
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 3.
+    amplitude: a number between 0 and 1 representing the amplitude. Default: 0.5.
+    pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
+    feedback: a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
+*/
+function loopSampleLfo(nextEvent, {bank = 0, sample = 0, reverse = 0, top = 1.4, bottom = 0.2, lfo = 0.2, duration = 4, envelope = 0, attack = 0, sustain = 0, release = 3, amplitude = 0.5, pan = 0, delaytime = 0, feedback = 0.5},bpm){
+    // initial validations
+    if(samples.length == 0){
+        throw new Error("there are no samples to play");
+    }
+    if(bank >= samples.length){
+        throw new Error(`the sample bank '${bank}' doesn't exist`);
+    }
+    if(sample >= samples[bank].length){
+        throw new Error(`the sample bank '${bank}' doesn't have a '${sample}' sample`);
+    }
+    if(reverse < 0 || reverse > 1 || reverse - parseInt(reverse) > 0){
+        throw new Error("invalid 'reverse' value for 'loop_sample_lfo', allowed values -> 0 (no) or 1 (yes)");
+    }
+    if(bottom <= 0){
+        throw new Error("'bottom' value for 'loop_sample_lfo' MUST be greater than 0");
+    }
+    if(top <= bottom){
+        throw new Error("'top' value for 'loop_sample_lfo' MUST be greater than 'bottom'");
+    }
+    if(lfo <= 0){
+        throw new Error("'lfo' value for 'loop_sample_lfo' MUST be greater than 0");
+    }
+    if(duration <= 0){
+        throw new Error("'duration' value for 'loop_sample_lfo' MUST be greater than 0");
+    }
+    if(envelope < 0 || envelope > 1 || envelope - parseInt(envelope) > 0){
+        throw new Error("invalid 'envelope' value for 'loop_sample_lfo', allowed values -> 0 (no) or 1 (yes)");
+    }
+    if(envelope){
+        if(attack < 0){
+            throw new Error("'attack' value for 'loop_sample_lfo' MUST be greater or equal to 0");
+        }
+        if(sustain < 0){
+            throw new Error("'sustain' value for 'loop_sample_lfo' MUST be greater or equal to 0");
+        }
+        if(release < 0){
+            throw new Error("'release' value for 'loop_sample_lfo' MUST be greater or equal to 0");
+        }
+    }
+    if(amplitude < 0 || amplitude > 1){
+        throw new Error("'amplitude' value for 'loop_sample_lfo' MUST be between 0 and 1");
+    }
+    if(pan < -1 || pan > 1){
+        throw new Error("'pan' value for 'loop_sample_lfo' MUST be between -1 and 1");
+    }
+    if(delaytime < 0){
+        throw new Error("'delaytime' value for 'loop_sample_lfo' MUST be greater or equal to 0");
+    }
+
+    //buffer source to play the sample
+    const source = context.createBufferSource();
+    
+    //which sample? depending on the 'reverse' value, we'll use the buffer as it is or we'll reverse it
+    if(reverse){
+        //we create a temporal buffer to store the reversed data
+        let reversedBuffer = context.createBuffer(
+            samples[bank][sample].numberOfChannels,
+            samples[bank][sample].length,
+            samples[bank][sample].sampleRate
+        );
+        // then we reverse the data
+        for (let channel = 0; channel < samples[bank][sample].numberOfChannels; channel++) {
+            const channelData = samples[bank][sample].getChannelData(channel);
+            const reversedData = reversedBuffer.getChannelData(channel);
+            for (let i = 0; i < channelData.length; i++) {
+                reversedData[i] = channelData[channelData.length - 1 - i];
+            }
+        }
+        source.buffer = reversedBuffer; //we select the reversed buffer
+    }else{
+        //otherwise we use it as it is
+        source.buffer = samples[bank][sample];
+    }
+
+    source.loop = true;//loopity loop
+
+    //LFO stuff
+    const rangeLFO = (top - bottom) / 2;
+    const rate = bottom + rangeLFO; 
+    source.playbackRate.value = rate;//initial rate
+
+    const LFO = createOSC(lfo,"sine");//LFO
+    const LFOdepth = new GainNode(context,{gain :  rangeLFO});//depth of the modulator
+
+    //LFO --> LFOdepth ---> playback rate
+    LFO.connect(LFOdepth).connect(source.playbackRate);
+    
+
+    let env = null;
+
+    if(envelope){
+        env = createEnvelope(amplitude,attack,sustain,release,bpm);//envelope
+    }else{
+        env = new GainNode(context, { gain : amplitude });
+    }
+
+    const panner = setPan(pan);//panner
+    const splitter = context.createChannelSplitter(2);//this will split the signal in two channels
+    panner.connect(splitter);//then we connect the panner to the splitter
+    //the split signal goes into the analyzers
+    splitter.connect(analyserLeft,0);//left
+    splitter.connect(analyserRight,1);//right
+
+
+    //oscillator --> envelope --> panner --> destination (stereo output)
+    source.connect(env).connect(panner).connect(context.destination);
+
+    if(delaytime){//if delaytime is greater than 0
+        if(feedback < 0 || feedback > 0.9){//we validate the feedback
+            throw new Error("'feedback' value for 'loop_sample_lfo' MUST be between 0 and 0.9");
+        }
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
+        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+
+        //then we create the feedback loop
+        env.connect(delay).connect(feedBack).connect(delay);
+
+        //and connect the delay to the destination (stereo output)
+        feedBack.connect(panner).connect(context.destination);
+    }
+
+    source.start(context.currentTime);
+    source.stop(context.currentTime + pulseToSeconds(duration,bpm)); //self explanatory
+
+    LFO.start(context.currentTime);
+    LFO.stop(context.currentTime + pulseToSeconds(duration,bpm));
+    
+    if(nextEvent){
+        nextFunction(nextEvent);
+    }
+}
 
 functions = {
     sillyTestSynth,
@@ -1948,5 +2099,6 @@ functions = {
     fmInParallel,
     simpleSequence,
     playSample,
-    loopSample
+    loopSample,
+    loopSampleLfo
 };//we add all the functions to the global register
