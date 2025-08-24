@@ -6,9 +6,9 @@ If you want to see some code examples you can go [here](https://github.com/jgms/
 
 ## what
 
-*éliane* is an environment for programming electronic music, whose main concern is to **separate the sound design from the sequencing**, allowing the creation of, for a lack of a better name, "scripted scores". At its very core it's just a code based function sequencer I developed with the aim of making my workflow a little more playful and inspiring.
+*éliane* is an environment for programming electronic music, whose main concern is to **separate the sound design from the sequencing**, allowing the creation of, for a lack of a better name, "scripted scores". At its very core it's just a **code based function sequencer** I developed with the aim of making my workflow a little more playful and inspiring.
 
-The instruments/functions included so far are based on my [own practice](https://soundcloud.com/maravillosa-realidad), but you can create your own functions and add them to (or completely replace) the original ones, in fact, you can extract the interpreter/sequencer and sequence whatever function(s) you want, not necessarily sound producing functions.
+The instruments/functions included so far are just examples and they are based on my [own practice](https://soundcloud.com/maravillosa-realidad), but you can create your own functions (it is the very point of *éliane*) and add them to (or completely replace) the original ones, in fact, you can extract the interpreter/sequencer and sequence whatever function(s) you want, not necessarily sound producing functions.
 
 *éliane* is named after the great French composer [Éliane Radigue](https://en.wikipedia.org/wiki/%C3%89liane_Radigue).
 
@@ -18,13 +18,17 @@ After so many years of making music using [Pure Data](https://puredata.info/), w
 
 After exploring a little (tons to learn still, though) the Web Audio API, and seeing that I could implement all (at least at first glance) my usual sound design techniques, I said: why not leave the sound design entirely in the hands of JavaScript and build a simple language on top of it to sequence everything? so, here we are.
 
-Although I made *éliane* to address my very own creative needs, I decided to make it available online and open source the code in order to use it to teach the basics of programming to my youngest students, and in case it can be of use to anyone. So feel free to download and modify/expand/make it your own. If you find any error (you know how this goes), feel free to get in touch at *joaquinmendozasebastian (at) gmail.com*. 
+**Late 2024 update:** the "at least at first glance" from the paragraph above turned out for the worst as I delved deeper into the Web Audio API, I started developing really simple things that for some reasons behave differently on different browsers, some stuff even not working at all, at first I thought that I was doing something in the wrong way, but they were really **very simple things**, so after a lot of research and tests, I found out that it was a thing related to browser performance (in the case of sound synthesis issues) and the resources consumed by the sequencer (in the case of timing issues, this being **completely my fault**). I must confess I lost the drive, and after thinking about possible solutions (I even thought about using [SuperCollider](https://supercollider.github.io/) as the sound engine, an idea that still rings in my ears from time to time), and some real life stuff getting in the way, I kind of abandoned the project.
+
+**Summer 2025 update:** after receiving a lot of requests for code examples, I began writing silly scripts using the example instruments and suddendly, I was hooked, I was writing music in *éliane* all the time and using its limitations as creative opportunities, so I decided to make said scripts [available for anyone](https://github.com/jgms/construye-un-castillo) that wishes to start experimenting with *éliane*, and added two of the most requested features: sampling and random numbers. 
+
+Although I made *éliane* to address **my very own creative needs**, I decided to make it available online and open source the code in order to use it to teach the basics of programming to my youngest students, and in case it can be of use to anyone. So feel free to download and modify/expand/make it your own. If you find any error (you know how this goes), feel free to get in touch at *joaquinmendozasebastian (at) gmail.com*. 
 
 ## the syntax
 
 *éliane*'s syntax is as simple as it gets, it only has **variables**, **function calls** and 5 keywords: **pulse**, **wait**, **repeat**, **if** and **else**. As I said above, it is heavily inspired by [Sonic Pi](https://sonic-pi.net/)'s, but simpler. There are a several things missing: complex/compound conditions/operations and my very much beloved ternary orperator, but I plan to implement them in the not so distant future. I'd also love to add syntax highlighting at some point.
 
-Before we continue, it's important to clarify what *éliane* is not: it is not a fully fledged programming language (I don't really know if that's even within my reach), it is just a way to sequence the calling of functions, changing their parameters and declaring global variables along the way, using a very simple syntax. One of the reasons I'm open sourcing this, is because I know the technical wizards out there can take this humble effort waaaaay further. With that out of the way, let's us explain *éliane*'s features one by one.
+Before we continue, it's important to clarify what *éliane* is not: it **is not a fully fledged programming language** (I don't really know if that's even within my reach), it is just a way to sequence the calling of functions, changing their parameters and declaring global variables along the way, using a very simple syntax. With that out of the way, let's us explain *éliane*'s features one by one.
 
 ### variables
 
@@ -62,6 +66,25 @@ basic_synth frequency: note, pan: 1;
 ```
 
 It's important to notice that the colon is part of the parameter name, as in "frequency:", if it is written "frequency :" it will throw an error.
+
+### random numbers
+
+There's a special variable available called **random**, you can use it as any other variable, but it's meant to be used with a special function called **a_z_rotate**, named after the wonderdul sound explorer (and friend) Uge Ortiz AKA [AZ-Rotator](http://www.az-rotator.com/).
+
+This is how it works:
+
+```
+# the default value of 'random' is 0 (zero)
+random = 200; # you can use it as any other variable
+basic_synth frequency: random;
+
+# but it's meant to be used this way
+a_z_rotate min: 200, max: 300, integer: 0; # this will assing a random float number between 200 and 300 (inclusive) to the variable 'random'
+basic_synth frequency: random;
+a_z_rotate min: 200, max: 300; # everytime you use it, the next time you use 'random' it will have a different value
+# in the case above, 'random' will be an integer, the 'integer' parameter is 1 (yes) by default, if you want a float, just pass it a 0 (no)
+basic_synth frequency: random;
+```
 
 ### pulse
 
@@ -101,6 +124,20 @@ repeat 3{
 }
 
 basic_synth frequency: 500;
+
+# here's a little example using random values
+
+waits = [0.5,1,0.25];
+
+a_z_rotate min: 2, max: 8; # a value for 'random' in order to define the number of repeats
+
+repeat random{
+   a_z_rotate min: 500, max: 1000, integer: 0; # a value for 'random' in order to define the frequency
+   simple_wave frequency: random;
+   a_z_rotate min: 0, max: 2; # a value for 'random' in order to define the index to read from the 'wait' array declared above
+   time = waits[random]; # to define the time to wait before the next note
+   wait time;
+}
 ```
 
 ### if/else
@@ -128,9 +165,9 @@ Needless to say, there can't be an **else** without an **if**.
 
 ## the included functions
 
-As I'm still exploring the full sound design capabilities of the Web Audio API, I went for the basic building blocks of my music at the moment of writing this (august 2024), but functions in *éliane* are designed to take only numbers as arguments, that makes very easy expanding its options, because all the "heavy programming" will rest on JavaScript's shoulders, inside the functions we can make whatever we want of those numbers, we can fill an array with samples and use a number as the index to determine which one to play, we can use a number to define its speed, etc. etc. The possibilities are almost endless, as I said above, sound design is separate from sequencing.
+Functions in *éliane* are designed to take only numbers as arguments, that makes very easy expanding its options, because all the "heavy programming" will rest on JavaScript's shoulders, inside the functions we can make whatever we want of those numbers, we can fill an array with samples and use a number as the index to determine which one to play, we can use a number to define its speed, etc. etc. The possibilities are almost endless, as I said above, sound design is separate from sequencing.
 
-Let's go one by one, as you will see, I'll only tell you about its parameters, feel free to play and experiment with them to see what they are about. This list will be growing (hopefully) as my knowledge of the Wed Audio API grows.
+Let's go one by one, as you will see, I'll only tell you about its parameters, feel free to play and experiment with them to see what they are about, anyway, they are only examples.
 
 ### silly_test_synth
 
@@ -393,7 +430,84 @@ Parameters:
 - **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
 - **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
 
+### play_sample
+
+Parameters:
+
+- **bank:** a number greater or equal to 0 representing the sample bank where to look for the sample. Default: 0.
+- **sample:** a number greater or equal to 0 representing the sample in the selected bank. Default: 0.
+- **rate:** a number different from 0 (can be positive or negative) representing the sample's playing speed, where 1 is the normal speed, greater to 1 means faster, and less than 1 means slower, a negative value plays the sample backwards. Default: 1.
+- **envelope:** a number that defines if the sample will be played with an envelope, allowed values --> 0 -> no, 1 -> yes. Default: 0.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 0.
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 0.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 1.
+- **amplitude:** a number between 0 and 1 representing the amplitude. Default: 0.5.
+- **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
+- **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
+
+### loop_sample
+
+Parameters:
+
+- **bank:** a number greater or equal to 0 representing the sample bank where to look for the sample. Default: 0.
+- **sample:** a number greater or equal to 0 representing the sample in the selected bank. Default: 0.
+- **rate:** a number different from 0 (can be positive or negative) representing the sample's playing speed, where 1 is the normal speed, greater to 1 means faster, and less than 1 means slower, a negative value plays the sample backwards. Default: 1.
+- **duration:** a number greater than 0 representing the amount of time as a multiple of the BPM that the sample will be playing in a loop. Default: 4.
+- **envelope:** a number that defines if the sample will be played with an envelope, allowed values --> 0 -> no, 1 -> yes. Default: 0.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 0.
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 0.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 3.
+- **amplitude:** a number between 0 and 1 representing the amplitude. Default: 0.5.
+- **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
+- **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
+
+### loop_sample_lfo
+
+The same as **loop_sample** but the rate is controlled by an LFO.
+
+Parameters:
+
+- **bank:** a number greater or equal to 0 representing the sample bank where to look for the sample. Default: 0.
+- **sample:** a number greater or equal to 0 representing the sample in the selected bank. Default: 0.
+- **reverse:** a number that defines if the sample will be played normal or backwards, allowed values --> 0 -> no, 1 -> yes. Default: 0.
+- **bottom:** a number greater than 0 representing the bottom playing rate (1 is the normal speed, greater to 1 means faster, and less than 1 means slower). Default: 0.2.
+- **top:** a number greater than 'bottom' representing the top playing rate (1 is the normal speed, greater to 1 means faster, and less than 1 means slower). Default: 1.4.
+- **lfo:** a number greater than 0 representing the frequency of the LFO in hertz. Default: 0.2. 
+- **duration:** a number greater than 0 representing the amount of time as a multiple of the BPM that the sample will be playing in a loop. Default: 4.
+- **envelope:** a number that defines if the sample will be played with an envelope, allowed values --> 0 -> no, 1 -> yes. Default: 0.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 0.
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 0.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 3.
+- **amplitude:** a number between 0 and 1 representing the amplitude. Default: 0.5.
+pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
+- **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
+
+### slide_sample
+
+This one plays a sample (forwards or backwards) making a slide from one playing rate to another in the specified time. It works better with long samples.
+
+Parameters:
+
+- **bank:** a number greater or equal to 0 representing the sample bank where to look for the sample. Default: 2.
+- **sample:** a number greater or equal to 0 representing the sample in the selected bank. Default: 6.
+- **startrate:** a number greater than 0 representing the playing rate at the start of the slide (1 is the normal speed, greater to 1 means faster, and less than 1 means slower). Default: 1.
+- **endrate:** a number greater than 0 representing the playing rate at the end of the slide (1 is the normal speed, greater to 1 means faster, and less than 1 means slower). Default: 0.1.
+- **slidetime:** a number greater than 0 representing the amount of time as a multiple of the BPM that will take the sample to go from the 'startrate' to the 'endrate', if there is not enough sample to do the slide, the sample will stop playing once it reaches its end, otherwise it will continue playing at the 'endrate' for the remaining duration of the sample. Default: 4.
+- **reverse:** a number that defines if the sample will be played normal or backwards, allowed values --> 0 -> no, 1 -> yes. Default: 0.
+- **envelope:** a number that defines if the sample will be played with an envelope, allowed values --> 0 -> no, 1 -> yes. Default: 0.
+- **attack:** a number greater or equal to 0 representing the attack time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 0.
+- **sustain:** a number greater or equal to 0 representing the sustain time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 0.
+- **release:** a number greater or equal to 0 representing the release time as a multiple of the BPM. Has no effect if 'envelope' value is 0. Default: 1.
+- **amplitude:** a number between 0 and 1 representing the amplitude. Default: 0.5.
+- **pan:** a number between -1 and 1 representing the position of the sound in the stereo spectrum. Default: 0.
+- **delaytime:** a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay. Default: 0.
+- **feedback:** a number between 0 and 0.9 to control the delay's feedback. Default: 0.5.
+
 ### simple_sequence
+
 Not really an instrument, but a utility to play a sequence starting on a base frequency and going up or down at a fixed interval
 
 Parameters:
@@ -424,6 +538,41 @@ Extra arguments in case of instrument being **basic_synth** or **basic_fm**
 
 - **mod:** a number greater than 0 representing the frequency of the modulator as a multiple of the carrier. Default: 2.
 - **depth:** a number greater or equal to 0 representing the depth of the modulation. Default: 1000.
+
+## the included samples and how to add your own
+
+In order to keep the online demo functional, I've added some samples:
+
+- **Bank 0:** a (very) little selection of percussion sounds taken from the [tidal-drum-machines](https://github.com/geikha/tidal-drum-machines) library. 
+    - 0 - 5: bass drums.
+    - 6 - 9: closed hi-hats.
+    - 10 - 15: misc.
+    - 16: a lonely open hi-hat.
+    - 17 - 22: snare drums.
+- **Bank 1:** some (very) lo-fi recordings of myself doing silly voices.
+- **Bank 2:** a bunch of (very) silly samples from old educational movies.
+
+In order to add your own samples:
+
+- Download *éliane* and serve it locally, there is a gazillion ways of doing that, live server will do the trick...
+- Locate the 'samples' folder and copy there folders with samples inside, every folder will become a 'bank' and every sample will become, you guessed it, a sample.
+- How *éliane* will recognize the folders/samples? you have to modify the 'samples.json' file that lives inside the samples folder, they will be loaded in order, so the first folder will become bank 0, the first sample in the folder will become sample 0 and so on...
+
+```JSON
+{
+    "urls" : [
+        [
+            "/folder/sample_name.wav",
+            "/folder/sample_name.wav",
+            "/folder/sample_name.wav"
+        ],
+        [
+            "/another_folder/sample_name.wav",
+            "/another_folder/you_get_the_picture.wav"
+        ]
+    ]
+}
+```
 
 ## adding your own functions
 
