@@ -45,7 +45,7 @@ zoomButtons.forEach((button,i) => {
 });
 
 //get samples
-fetch("samples/samples.json") //if you're serving this locally, remove the '/eliane' segment from the URL
+fetch("samples/samples.json")
 .then(res => res.json())
 .then(async ({urls}) => { 
     /*
@@ -61,7 +61,7 @@ fetch("samples/samples.json") //if you're serving this locally, remove the '/eli
         for(let i = 0; i < urls.length; i++){
             samples.push(
                 await Promise.all(urls[i].map(url => {
-                    return fetch("samples" + url)//if you're serving this locally, remove the '/eliane' segment from the URL
+                    return fetch("samples" + url)
                     .then(res => res.arrayBuffer())
                     .then(data => context.decodeAudioData(data));
                 }))
