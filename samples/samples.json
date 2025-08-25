@@ -51,6 +51,23 @@
             "/clasicos/05.wav",
             "/clasicos/06.wav",
             "/clasicos/07.wav"
+        ],
+        [
+            "/pure_data/01.wav",
+            "/pure_data/02.wav",
+            "/pure_data/03.wav",
+            "/pure_data/04.wav",
+            "/pure_data/05.wav",
+            "/pure_data/06.wav",
+            "/pure_data/07.wav",
+            "/pure_data/08.wav",
+            "/pure_data/09.wav",
+            "/pure_data/10.wav",
+            "/pure_data/11.wav",
+            "/pure_data/12.wav",
+            "/pure_data/13.wav",
+            "/pure_data/14.wav",
+            "/pure_data/15.wav"
         ]
     ]
 }

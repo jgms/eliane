@@ -551,6 +551,7 @@ In order to keep the online demo functional, I've added some samples:
     - 17 - 22: snare drums.
 - **Bank 1:** some (very) lo-fi recordings of myself doing silly voices.
 - **Bank 2:** a bunch of (very) silly samples from old educational movies.
+- **Bank 3:** synth stuff created in Pure Data.
 
 In order to add your own samples:
 
