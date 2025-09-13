@@ -1222,6 +1222,259 @@ function basicFmLfo(nextEvent,{frequency = 400, attack = 0, sustain = 0, release
 }
 
 /*
+ seven_fm
+    frequency: a number greater than 0 representing the frequency in hertz
+    attack: a number greater or equal to 0 representing the attack time as a multiple of the BPM
+    sustain: a number greater or equal to 0 representing the sustain time as a multiple of the BPM
+    release: a number greater or equal to 0 representing the release time as a multiple of the BPM
+    amplitude: a number between 0 and 1 representing the amplitude
+    modone: a number greater than 0 representing the frequency of the first modulator as a multiple of the carrier
+    depthone: a number greater or equal to 0 representing the depth of the modulation of the first modulator
+    lfoone: a number greater than 0 representing the frequency of the first LFO in hertz 
+    modtwo: a number greater than 0 representing the frequency of the second modulator as a multiple of the carrier
+    depthtwo: a number greater or equal to 0 representing the depth of the modulation of the second modulator
+    lfotwo: a number greater than 0 representing the frequency of the second LFO in hertz
+    modthree: a number greater than 0 representing the frequency of the third modulator as a multiple of the carrier
+    depththree: a number greater or equal to 0 representing the depth of the modulation of the third modulator
+    lfothree: a number greater than 0 representing the frequency of the third LFO in hertz
+    modfour: a number greater than 0 representing the frequency of the fourth modulator as a multiple of the carrier
+    depthfour: a number greater or equal to 0 representing the depth of the modulation of the fourth modulator
+    lfofour: a number greater than 0 representing the frequency of the fourth LFO in hertz
+    modfive: a number greater than 0 representing the frequency of the fifth modulator as a multiple of the carrier
+    depthfive: a number greater or equal to 0 representing the depth of the modulation of the fifth modulator
+    lfofive: a number greater than 0 representing the frequency of the fifth LFO in hertz
+    modsix: a number greater than 0 representing the frequency of the sixth modulator as a multiple of the carrier
+    depthsix: a number greater or equal to 0 representing the depth of the modulation of the sixth modulator
+    lfosix: a number greater than 0 representing the frequency of the sixth LFO in hertz
+    modseven: a number greater than 0 representing the frequency of the seventh modulator as a multiple of the carrier
+    depthseven: a number greater or equal to 0 representing the depth of the modulation of the seventh modulator
+    lfoseven: a number greater than 0 representing the frequency of the seventh LFO in hertz
+    pan: a number between -1 and 1 representing the position of the sound in the stereo spectrum
+    delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay
+    feedback: a number between 0 and 0.9 to control the delay's feedback
+ */
+function sevenFm(nextEvent,{frequency = 300, attack = 4, sustain = 12, release = 8, amplitude = 1, modone = 0.25, depthone = 500, lfoone = 1, modtwo = 1, depthtwo = 500, lfotwo = 0.5, modthree = 2.5, depththree = 500, lfothree = 0.25, modfour = 3, depthfour = 500, lfofour = 0.125, modfive = 4.5, depthfive = 500, lfofive = 0.0625, modsix = 5, depthsix = 500, lfosix = 0.03125, modseven = 7, depthseven = 500, lfoseven = 0.015625, pan = 0, delaytime = 0, feedback = 0.5},bpm){
+    // initial validations
+    if(frequency <= 0){
+        throw new Error("'frequency' value for 'seven_fm' MUST be greater than 0");
+    }
+    if(attack < 0){
+        throw new Error("'attack' value for 'seven_fm' MUST be greater or equal to 0");
+    }
+    if(sustain < 0){
+        throw new Error("'sustain' value for 'seven_fm' MUST be greater or equal to 0");
+    }
+    if(release < 0){
+        throw new Error("'release' value for 'seven_fm' MUST be greater or equal to 0");
+    }
+    if(amplitude < 0 || amplitude > 1){
+        throw new Error("'amplitude' value for 'seven_fm' MUST be between 0 and 1");
+    }
+    if(modone <= 0){
+        throw new Error("'modone' value for 'seven_fm' MUST be greater than 0");
+    }
+    if(depthone < 0){
+        throw new Error("'depthone' value for 'seven_fm' MUST be greater or equal to 0");
+    }
+    if(lfoone <= 0){
+        throw new Error("'lfoone' value for 'seven_fm' MUST be greater than 0");
+    }
+    if(modtwo <= 0){
+        throw new Error("'modtwo' value for 'seven_fm' MUST be greater than 0");
+    }
+    if(depthtwo < 0){
+        throw new Error("'depthtwo' value for 'seven_fm' MUST be greater or equal to 0");
+    }
+    if(lfotwo <= 0){
+        throw new Error("'lfotwo' value for 'seven_fm' MUST be greater than 0");
+    }
+    if(modthree <= 0){
+        throw new Error("'modthree' value for 'seven_fm' MUST be greater than 0");
+    }
+    if(depththree < 0){
+        throw new Error("'depththree' value for 'seven_fm' MUST be greater or equal to 0");
+    }
+    if(lfothree <= 0){
+        throw new Error("'lfothree' value for 'seven_fm' MUST be greater than 0");
+    }
+    if(modfour <= 0){
+        throw new Error("'modfour' value for 'seven_fm' MUST be greater than 0");
+    }
+    if(depthfour < 0){
+        throw new Error("'depthfour' value for 'seven_fm' MUST be greater or equal to 0");
+    }
+    if(lfofour <= 0){
+        throw new Error("'lfofour' value for 'seven_fm' MUST be greater than 0");
+    }
+    if(modfive <= 0){
+        throw new Error("'modfive' value for 'seven_fm' MUST be greater than 0");
+    }
+    if(depthfive < 0){
+        throw new Error("'depthfive' value for 'seven_fm' MUST be greater or equal to 0");
+    }
+    if(lfofive <= 0){
+        throw new Error("'lfofive' value for 'seven_fm' MUST be greater than 0");
+    }
+    if(modsix <= 0){
+        throw new Error("'modsix' value for 'seven_fm' MUST be greater than 0");
+    }
+    if(depthsix < 0){
+        throw new Error("'depthsix' value for 'seven_fm' MUST be greater or equal to 0");
+    }
+    if(lfosix <= 0){
+        throw new Error("'lfosix' value for 'seven_fm' MUST be greater than 0");
+    }
+    if(modseven <= 0){
+        throw new Error("'modseven' value for 'seven_fm' MUST be greater than 0");
+    }
+    if(depthseven < 0){
+        throw new Error("'depthseven' value for 'seven_fm' MUST be greater or equal to 0");
+    }
+    if(lfoseven <= 0){
+        throw new Error("'lfoseven' value for 'seven_fm' MUST be greater than 0");
+    }
+    if(pan < -1 || pan > 1){
+        throw new Error("'pan' value for 'seven_fm' MUST be between -1 and 1");
+    }
+    if(delaytime < 0){
+        throw new Error("'delaytime' value for 'seven_fm' MUST be greater or equal to 0");
+    }
+
+    const carrier = createOSC(frequency,"sine");//carrier oscillator
+    const modulatorOne = createOSC(frequency * modone,"sine");//modulator oscillator
+    const modulatorTwo = createOSC(frequency * modtwo,"sine");//modulator oscillator
+    const modulatorThree = createOSC(frequency * modthree,"sine");//modulator oscillator
+    const modulatorFour = createOSC(frequency * modfour,"sine");//modulator oscillator
+    const modulatorFive = createOSC(frequency * modfive,"sine");//modulator oscillator
+    const modulatorSix = createOSC(frequency * modsix,"sine");//modulator oscillator
+    const modulatorSeven = createOSC(frequency * modseven,"sine");//modulator oscillator
+    
+
+    const env = createEnvelope(amplitude,attack,sustain,release,bpm);//main envelope
+    
+    //LFOS
+    const LFOOne = createOSC(lfoone,"sine");//LFO
+    const LFOOneDepth = new GainNode(context,{gain : depthone});//depth of the modulator
+    const LFOOneGain = new GainNode(context,{gain : 0.5});//gain to multiply the depth, to be controlled by the LFO
+    const LFOTwo = createOSC(lfotwo,"sine");//LFO
+    const LFOTwoDepth = new GainNode(context,{gain : depthtwo});//depth of the modulator
+    const LFOTwoGain = new GainNode(context,{gain : 0.5});//gain to multiply the depth, to be controlled by the LFO
+    const LFOThree = createOSC(lfothree,"sine");//LFO
+    const LFOThreeDepth = new GainNode(context,{gain : depththree});//depth of the modulator
+    const LFOThreeGain = new GainNode(context,{gain : 0.5});//gain to multiply the depth, to be controlled by the LFO
+    const LFOFour = createOSC(lfofour,"sine");//LFO
+    const LFOFourDepth = new GainNode(context,{gain : depthfour});//depth of the modulator
+    const LFOFourGain = new GainNode(context,{gain : 0.5});//gain to multiply the depth, to be controlled by the LFO
+    const LFOFive = createOSC(lfofive,"sine");//LFO
+    const LFOFiveDepth = new GainNode(context,{gain : depthfive});//depth of the modulator
+    const LFOFiveGain = new GainNode(context,{gain : 0.5});//gain to multiply the depth, to be controlled by the LFO
+    const LFOSix = createOSC(lfosix,"sine");//LFO
+    const LFOSixDepth = new GainNode(context,{gain : depthsix});//depth of the modulator
+    const LFOSixGain = new GainNode(context,{gain : 0.5});//gain to multiply the depth, to be controlled by the LFO
+    const LFOSeven = createOSC(lfoseven,"sine");//LFO
+    const LFOSevenDepth = new GainNode(context,{gain : depthseven});//depth of the modulator
+    const LFOSevenGain = new GainNode(context,{gain : 0.5});//gain to multiply the depth, to be controlled by the LFO
+
+
+    const panner = setPan(pan);//panner
+    const splitter = context.createChannelSplitter(2);//this will split the signal in two channels
+    panner.connect(splitter);//then we connect the panner to the splitter
+    //the split signal goes into the analyzers
+    splitter.connect(analyserLeft,0);//left
+    splitter.connect(analyserRight,1);//right
+
+    //modulator --> LFOdepth ---> LFOgain(LFO ---> LFOgain) --> carrier frequency
+    modulatorOne.connect(LFOOneDepth);
+    LFOOneDepth.connect(LFOOneGain);
+    LFOOne.connect(LFOOneGain.gain);
+    LFOOneGain.connect(carrier.frequency);
+
+    modulatorTwo.connect(LFOTwoDepth);
+    LFOTwoDepth.connect(LFOTwoGain);
+    LFOTwo.connect(LFOTwoGain.gain);
+    LFOTwoGain.connect(carrier.frequency);
+
+    modulatorThree.connect(LFOThreeDepth);
+    LFOThreeDepth.connect(LFOThreeGain);
+    LFOThree.connect(LFOThreeGain.gain);
+    LFOThreeGain.connect(carrier.frequency);
+
+    modulatorFour.connect(LFOFourDepth);
+    LFOFourDepth.connect(LFOFourGain);
+    LFOFour.connect(LFOFourGain.gain);
+    LFOFourGain.connect(carrier.frequency);
+
+    modulatorFive.connect(LFOFiveDepth);
+    LFOFiveDepth.connect(LFOFiveGain);
+    LFOFive.connect(LFOFiveGain.gain);
+    LFOFiveGain.connect(carrier.frequency);
+
+    modulatorSix.connect(LFOSixDepth);
+    LFOSixDepth.connect(LFOSixGain);
+    LFOSix.connect(LFOSixGain.gain);
+    LFOSixGain.connect(carrier.frequency);
+
+    modulatorSeven.connect(LFOSevenDepth);
+    LFOSevenDepth.connect(LFOSevenGain);
+    LFOSeven.connect(LFOSevenGain.gain);
+    LFOSevenGain.connect(carrier.frequency);
+
+    //carrier --> envelope --> panner --> destination (stereo output)
+    carrier.connect(env).connect(panner).connect(context.destination);
+
+    if(delaytime){//if delaytime is greater than 0
+        if(feedback < 0 || feedback > 0.9){//we validate the feedback
+            throw new Error("'feedback' value for 'seven_fm' MUST be between 0 and 0.9");
+        }
+        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
+        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+
+        //then we create the feedback loop
+        env.connect(delay).connect(feedBack).connect(delay);
+
+        //and connect the delay to the destination (stereo output)
+        feedBack.connect(panner).connect(context.destination);
+    }
+
+    carrier.start(context.currentTime);
+    modulatorOne.start(context.currentTime);
+    LFOOne.start(context.currentTime);
+    modulatorTwo.start(context.currentTime);
+    LFOTwo.start(context.currentTime);
+    modulatorThree.start(context.currentTime);
+    LFOThree.start(context.currentTime);
+    modulatorFour.start(context.currentTime);
+    LFOFour.start(context.currentTime);
+    modulatorFive.start(context.currentTime);
+    LFOFive.start(context.currentTime);
+    modulatorSix.start(context.currentTime);
+    LFOSix.start(context.currentTime);
+    modulatorSeven.start(context.currentTime);
+    LFOSeven.start(context.currentTime);
+
+    carrier.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    modulatorOne.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    LFOOne.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    modulatorTwo.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    LFOTwo.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    modulatorThree.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    LFOThree.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    modulatorFour.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    LFOFour.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    modulatorFive.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    LFOFive.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    modulatorSix.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    LFOSix.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    modulatorSeven.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+    LFOSeven.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+
+    if(nextEvent){
+        nextFunction(nextEvent);
+    }
+}
+
+/*
  basic_fm_lfo_gliss
     start: a number greater than 0 representing the initial frequency in hertz
     end: a number greater than 0 representing the final frequency in hertz
@@ -2268,6 +2521,7 @@ functions = {
     basicFm,
     basicFmEnv,
     basicFmLfo,
+    sevenFm,
     basicFmLfoGliss,
     fmInSeries,
     fmInParallel,
