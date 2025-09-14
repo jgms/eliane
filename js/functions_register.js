@@ -1253,7 +1253,7 @@ function basicFmLfo(nextEvent,{frequency = 400, attack = 0, sustain = 0, release
     delaytime: a number greater or equal to 0 representing the delay time as a multiple of the BPM, when 0, there's no delay
     feedback: a number between 0 and 0.9 to control the delay's feedback
  */
-function sevenFm(nextEvent,{frequency = 300, attack = 4, sustain = 12, release = 8, amplitude = 1, modone = 0.25, depthone = 500, lfoone = 1, modtwo = 1, depthtwo = 500, lfotwo = 0.5, modthree = 2.5, depththree = 500, lfothree = 0.25, modfour = 3, depthfour = 500, lfofour = 0.125, modfive = 4.5, depthfive = 500, lfofive = 0.0625, modsix = 5, depthsix = 500, lfosix = 0.03125, modseven = 7, depthseven = 500, lfoseven = 0.015625, pan = 0, delaytime = 0, feedback = 0.5},bpm){
+function sevenFm(nextEvent,{frequency = 600, attack = 0, sustain = 2, release = 2, amplitude = 1, modone = 0.125, depthone = 900, lfoone = 0.15, modtwo = 3, depthtwo = 1700, lfotwo = 0.45, modthree = 1, depththree = 0, lfothree = 1, modfour = 1, depthfour = 0, lfofour = 1, modfive = 1, depthfive = 0, lfofive = 1, modsix = 1, depthsix = 0, lfosix = 1, modseven = 1, depthseven = 0, lfoseven = 1, pan = 0, delaytime = 0, feedback = 0.5},bpm){
     // initial validations
     if(frequency <= 0){
         throw new Error("'frequency' value for 'seven_fm' MUST be greater than 0");
