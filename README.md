@@ -69,7 +69,7 @@ It's important to notice that the colon is part of the parameter name, as in "fr
 
 ### random numbers
 
-There's a special variable available called **random**, you can use it as any other variable, but it's meant to be used with a special function called **a_z_rotate**, named after the wonderdul sound explorer (and friend) Uge Ortiz AKA [AZ-Rotator](http://www.az-rotator.com/).
+There's a special variable available called **random**, you can use it as any other variable, but it's meant to be used with a special function called **a_z_rotate**, named after the wonderful sound explorer (and friend) Uge Ortiz AKA [AZ-Rotator](http://www.az-rotator.com/).
 
 This is how it works:
 
