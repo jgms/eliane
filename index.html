@@ -30,32 +30,14 @@
         <section class="buttons">
             <button class="play">play</button>
             <button class="stop">stop</button>
+            <button class="record">start recording</button>
+            <button class="save">save</button>
+            <button class="load">load</button>
+            <input type="file" class="file-load-input" accept=".eliane,.txt">
         </section>
         <section class="meters">
-            <div class="meter">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-            </div>
-            <div class="meter">
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-                <div></div>
-            </div>
+            <canvas class="meter-canvas meter-left"></canvas>
+            <canvas class="meter-canvas meter-right"></canvas>
         </section>
     </div>
     <p class="mobile">sorry&#128531;, <span>éliane.</span> is not available for mobile devices.</p>

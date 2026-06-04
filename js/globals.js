@@ -4,8 +4,12 @@
 const textArea = document.querySelector("textarea");
 const playButton = document.querySelector(".play");
 const stopButton = document.querySelector(".stop");
-const metersLeft = document.querySelectorAll(".meter:first-child div");
-const metersRight = document.querySelectorAll(".meter:last-child div");
+const recordButton = document.querySelector(".record");
+const loadButton = document.querySelector(".load");
+const fileInput = document.querySelector(".file-load-input");//hidden input for loading the code
+const saveButton = document.querySelector(".save");
+const meterLeft = document.querySelector(".meter-left");
+const meterRight = document.querySelector(".meter-right");
 const errorLog = document.querySelector(".info p");
 const zoomButtons = document.querySelectorAll(".font-size button");
 

@@ -74,8 +74,9 @@ textarea{
     color:#f00;
 }
 .buttons{
-    display:flex;
-    justify-content: space-between;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:5%;
 }
 .buttons button{
     -webkit-appearance:none;
@@ -85,45 +86,31 @@ textarea{
     border:2px solid white;
     color:white;
     border-radius:10px;
-    width:45%;
-    padding:20px 0;
+    padding:10px 0;
     font-family:monospace; 
     cursor:pointer;
     transition: background-color 0.5s;
 }
+.buttons button:nth-child(3){
+    grid-column:1 / 3;
+}
 .buttons button:hover{
     background-color:#222;
+}
+.file-load-input{
+    display:none;
 }
 .meters{
     display: flex;
     justify-content: space-between;
 }
-.meter{
-    width:calc(45% - 20px);
-    height:320px;
-    padding:10px;
-    border:1px dashed #eee;
-    display:flex;
-    flex-direction: column-reverse;
-}
-.meter div{
-    flex-basis: calc(275px / 10); /*320px - 45px(margin top in every div from the second on) --> 275px*/
-    background-color:#0f0;
-    opacity:0;
-}
-.meter div.visible{
-    opacity:1;
-}
-.meter div:not(:last-child){
-    margin-top:5px;
-}
-.meter div:nth-child(7),
-.meter div:nth-child(8){
-    background-color:#ff0;
-}
-.meter div:nth-child(9),
-.meter div:nth-child(10){
-    background-color:#f00;
+.meter-canvas{
+    width: calc(45% - 20px);
+    height: 320px;
+    padding: 10px;
+    border: 1px dashed #eee;
+    display: block;
+    box-sizing: content-box;
 }
 .mobile{
     display:none;

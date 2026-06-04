@@ -1,6 +1,7 @@
 //UI user mechanics go here
 
 function startPlaying(){
+    resetClipIndicators();//reset clip indicators
     errorLog.classList.remove("error");
     errorLog.innerHTML = 'Welcome to éliane! just press play to execute the silly example on the left, or check the docs to make your own music. For more examples you can go <a href="https://github.com/jgms/construye-un-castillo" target="_blank">here</a>.';
     try{
@@ -22,6 +23,8 @@ function stopPlaying(){
     for(let i = 0; i <= test; i++){
         clearTimeout(i);//oh yes =)
     }
+
+    resetClipIndicators();//reset clip indicators
 }
 
 let example = examples[0];
@@ -32,6 +35,58 @@ playButton.addEventListener("click", startPlaying);
 
 stopButton.addEventListener("click", stopPlaying);
 
+
+//recording UI stuff
+let recording = false; //this should be in globals but....
+
+recordButton.addEventListener("click", () => {
+    if (!recording) {
+        recording = true;
+        recordButton.innerText = "stop recording";
+        recordButton.style.backgroundColor = "#f00";
+        context.resume();
+        startRecording();
+    } else {
+        recording = false;
+        recordButton.innerText = "start recording";
+        recordButton.removeAttribute("style");
+        stopRecording();   // encodes + downloads WAV
+    }
+});
+
+// load/save code functionality
+
+//save
+function saveCode() {
+    const blob = new Blob([textArea.value], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    downloadLink.download = `eliane-script-${Date.now()}.txt`;
+    downloadLink.click();
+    URL.revokeObjectURL(url);
+}
+
+saveButton.addEventListener("click", saveCode);// well well well
+
+//load
+loadButton.addEventListener("click", () => {
+    fileInput.click(); // open the file input
+});
+
+fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.readAsText(file);
+    reader.onload = (e) => {//once is read
+        textArea.value = e.target.result;
+    };
+    fileInput.value = ""; // reset so the same file can be reloaded if needed
+});
+
+
+//editor zoom
 let fontSize = 1.2;
 zoomButtons.forEach((button,i) => {
     button.addEventListener("click", () => {

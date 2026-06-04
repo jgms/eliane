@@ -68,13 +68,15 @@ function sillyTestSynth(nextEvent, {frequency = 100 ,attack = 0, sustain = 0, re
     osc1.connect(env);
     osc2.connect(env);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'silly_test_synth' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -93,6 +95,20 @@ function sillyTestSynth(nextEvent, {frequency = 100 ,attack = 0, sustain = 0, re
     //stop the oscillators
     osc1.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     osc2.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+
+    osc2.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            osc1.disconnect();
+            osc2.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
     
     //mechanism to invoke the next event in the sequence, if there's any
     if(nextEvent){
@@ -157,13 +173,15 @@ function simpleWave(nextEvent, {wave = 0, frequency = 100, attack = 0, sustain =
     //oscillator --> envelope --> panner --> destination (stereo output)
     oscillator.connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'simple_wave' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -175,6 +193,19 @@ function simpleWave(nextEvent, {wave = 0, frequency = 100, attack = 0, sustain =
     oscillator.start(context.currentTime);
 
     oscillator.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+
+    oscillator.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            oscillator.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
     
     if(nextEvent){
         nextFunction(nextEvent);
@@ -242,13 +273,15 @@ function simpleWaveGliss(nextEvent, {wave = 0, start = 800, end = 100, attack = 
     //oscillator --> envelope --> panner --> destination (stereo output)
     oscillator.connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'simple_wave_gliss' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -263,7 +296,20 @@ function simpleWaveGliss(nextEvent, {wave = 0, start = 800, end = 100, attack = 
     oscillator.frequency.linearRampToValueAtTime(end,context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
 
     oscillator.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
-    
+
+    oscillator.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            oscillator.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
+
     if(nextEvent){
         nextFunction(nextEvent);
     }
@@ -338,13 +384,15 @@ function simpleWaveRing(nextEvent, {wave = 0, frequency = 500, attack = 0, susta
     oscillator.connect(ringModulator).connect(env).connect(panner).connect(context.destination);
 
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'simple_wave_ring' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -356,6 +404,20 @@ function simpleWaveRing(nextEvent, {wave = 0, frequency = 500, attack = 0, susta
     oscillator.start(context.currentTime);
 
     oscillator.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+
+    oscillator.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            oscillator.disconnect();
+            ringModulator.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
     
     if(nextEvent){
         nextFunction(nextEvent);
@@ -435,13 +497,15 @@ function simpleWaveLfo(nextEvent, {wave = 0, top = 600, bottom = 400, lfo = 10, 
     //oscillator --> envelope --> panner --> destination (stereo output)
     oscillator.connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'simple_wave_lfo' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -456,6 +520,21 @@ function simpleWaveLfo(nextEvent, {wave = 0, top = 600, bottom = 400, lfo = 10, 
     oscillator.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     LFO.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     
+    oscillator.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            oscillator.disconnect();
+            LFO.disconnect();
+            LFOdepth.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
+
     if(nextEvent){
         nextFunction(nextEvent);
     }
@@ -546,13 +625,15 @@ function simpleWaveLfoRing(nextEvent, {wave = 0, top = 600, bottom = 400, lfo = 
     //oscillator --> ringModulator --> envelope --> panner --> destination (stereo output)
     oscillator.connect(ringModulator).connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'simple_wave_lfo_ring' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -567,6 +648,22 @@ function simpleWaveLfoRing(nextEvent, {wave = 0, top = 600, bottom = 400, lfo = 
     oscillator.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     LFO.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     
+    oscillator.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            oscillator.disconnect();
+            LFO.disconnect();
+            LFOdepth.disconnect();
+            ringModulator.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
+
     if(nextEvent){
         nextFunction(nextEvent);
     }
@@ -621,13 +718,15 @@ function whiteNoise(nextEvent, {attack = 0, sustain = 0, release = 1, amplitude 
     //white noise --> envelope --> panner --> destination (stereo output)
     whiteNoiseSource.connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'white_noise' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -640,6 +739,19 @@ function whiteNoise(nextEvent, {attack = 0, sustain = 0, release = 1, amplitude 
 
     whiteNoiseSource.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     
+    whiteNoiseSource.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            whiteNoiseSource.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
+
     if(nextEvent){
         nextFunction(nextEvent);
     }
@@ -704,13 +816,15 @@ function tunedNoise(nextEvent, {frequency = 100, attack = 0, sustain = 0, releas
     //white noise --> filter --> envelope --> panner --> destination (stereo output)
     whiteNoiseSource.connect(BPF).connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'tuned_noise' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -723,6 +837,20 @@ function tunedNoise(nextEvent, {frequency = 100, attack = 0, sustain = 0, releas
 
     whiteNoiseSource.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     
+    whiteNoiseSource.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            whiteNoiseSource.disconnect();
+            BPF.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
+
     if(nextEvent){
         nextFunction(nextEvent);
     }
@@ -810,13 +938,15 @@ function basicSynth(nextEvent, {frequency = 100 , detune = 1, attack = 0, sustai
     //envelope --> panner --> destination (stereo output)
     env.connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'basic_synth' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -831,6 +961,21 @@ function basicSynth(nextEvent, {frequency = 100 , detune = 1, attack = 0, sustai
     osc1.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     osc2.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     
+    osc1.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            osc1.disconnect();
+            osc2.disconnect();
+            LPF.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
+
     if(nextEvent){
         nextFunction(nextEvent);
     }
@@ -903,13 +1048,15 @@ function bassLine(nextEvent, {frequency = 100 , attack = 0, sustain = 0, release
     //envelope --> panner --> destination (stereo output)
     env.connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'bass_line' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -924,6 +1071,21 @@ function bassLine(nextEvent, {frequency = 100 , attack = 0, sustain = 0, release
     osc1.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     osc2.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     
+    osc1.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            osc1.disconnect();
+            osc2.disconnect();
+            LPF.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
+
     if(nextEvent){
         nextFunction(nextEvent);
     }
@@ -992,13 +1154,15 @@ function basicFm(nextEvent,{frequency = 100, attack = 0, sustain = 0, release = 
     //carrier --> envelope --> panner --> destination (stereo output)
     carrier.connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'basic_fm' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -1012,6 +1176,21 @@ function basicFm(nextEvent,{frequency = 100, attack = 0, sustain = 0, release = 
 
     carrier.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     modulator.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+
+    carrier.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            carrier.disconnect();
+            modulator.disconnect();
+            env.disconnect();
+            modEnv.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
 
     if(nextEvent){
         nextFunction(nextEvent);
@@ -1094,13 +1273,15 @@ function basicFmEnv(nextEvent,{frequency = 100, attack = 0, sustain = 0, release
     //carrier --> envelope --> panner --> destination (stereo output)
     carrier.connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'basic_fm_env' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -1114,6 +1295,21 @@ function basicFmEnv(nextEvent,{frequency = 100, attack = 0, sustain = 0, release
 
     carrier.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     modulator.stop(context.currentTime + pulseToSeconds(modattack,bpm) + pulseToSeconds(modsustain,bpm) + pulseToSeconds(modrelease,bpm));
+
+    carrier.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            carrier.disconnect();
+            modulator.disconnect();
+            env.disconnect();
+            modEnv.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
 
     if(nextEvent){
         nextFunction(nextEvent);
@@ -1193,13 +1389,15 @@ function basicFmLfo(nextEvent,{frequency = 400, attack = 0, sustain = 0, release
     //carrier --> envelope --> panner --> destination (stereo output)
     carrier.connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'basic_fm_lfo' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -1215,6 +1413,23 @@ function basicFmLfo(nextEvent,{frequency = 400, attack = 0, sustain = 0, release
     carrier.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     modulator.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     LFO.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+
+    carrier.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            carrier.disconnect();
+            modulator.disconnect();
+            LFO.disconnect();
+            LFOdepth.disconnect();
+            LFOgain.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
 
     if(nextEvent){
         nextFunction(nextEvent);
@@ -1422,13 +1637,15 @@ function sevenFm(nextEvent,{frequency = 600, attack = 0, sustain = 2, release = 
     //carrier --> envelope --> panner --> destination (stereo output)
     carrier.connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'seven_fm' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -1468,6 +1685,47 @@ function sevenFm(nextEvent,{frequency = 600, attack = 0, sustain = 2, release = 
     LFOSix.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     modulatorSeven.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     LFOSeven.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+
+    carrier.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            carrier.disconnect();
+            modulatorOne.disconnect();
+            modulatorTwo.disconnect();
+            modulatorThree.disconnect();
+            modulatorFour.disconnect();
+            modulatorFive.disconnect();
+            modulatorSix.disconnect();
+            modulatorSeven.disconnect();
+            LFOOne.disconnect();
+            LFOOneDepth.disconnect();
+            LFOOneGain.disconnect();
+            LFOTwo.disconnect();
+            LFOTwoDepth.disconnect();
+            LFOTwoGain.disconnect();
+            LFOThree.disconnect();
+            LFOThreeDepth.disconnect();
+            LFOThreeGain.disconnect();
+            LFOFour.disconnect();
+            LFOFourDepth.disconnect();
+            LFOFourGain.disconnect();
+            LFOFive.disconnect();
+            LFOFiveDepth.disconnect();
+            LFOFiveGain.disconnect();
+            LFOSix.disconnect();
+            LFOSixDepth.disconnect();
+            LFOSixGain.disconnect();
+            LFOSeven.disconnect();
+            LFOSevenDepth.disconnect();
+            LFOSevenGain.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
 
     if(nextEvent){
         nextFunction(nextEvent);
@@ -1554,13 +1812,15 @@ function basicFmLfoGliss(nextEvent,{start = 2000, end = 100, attack = 0, sustain
     //carrier --> envelope --> panner --> destination (stereo output)
     carrier.connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'basic_fm_lfo_gliss' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -1584,6 +1844,23 @@ function basicFmLfoGliss(nextEvent,{start = 2000, end = 100, attack = 0, sustain
     carrier.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     modulator.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     LFO.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
+
+    carrier.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            carrier.disconnect();
+            modulator.disconnect();
+            LFO.disconnect();
+            LFOdepth.disconnect();
+            LFOgain.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
 
     if(nextEvent){
         nextFunction(nextEvent);
@@ -1690,13 +1967,15 @@ function fmInSeries(nextEvent,{frequency = 200, attack = 0, sustain = 8, release
     //carrier --> envelope --> panner --> destination (stereo output)
     carrier.connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'fm_in_series' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -1712,6 +1991,23 @@ function fmInSeries(nextEvent,{frequency = 200, attack = 0, sustain = 8, release
     carrier.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     modulatorOne.stop(context.currentTime + pulseToSeconds(oneattack,bpm) + pulseToSeconds(onesustain,bpm) + pulseToSeconds(onerelease,bpm));
     modulatorTwo.stop(context.currentTime + pulseToSeconds(twoattack,bpm) + pulseToSeconds(twosustain,bpm) + pulseToSeconds(tworelease,bpm));
+
+    carrier.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            carrier.disconnect();
+            modulatorOne.disconnect();
+            modulatorTwo.disconnect();
+            modOneEnv.disconnect();
+            modTwoEnv.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
 
     if(nextEvent){
         nextFunction(nextEvent);
@@ -1819,13 +2115,15 @@ function fmInParallel(nextEvent,{frequency = 200, attack = 0, sustain = 8, relea
     //carrier --> envelope --> panner --> destination (stereo output)
     carrier.connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'fm_in_parallel' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -1841,6 +2139,23 @@ function fmInParallel(nextEvent,{frequency = 200, attack = 0, sustain = 8, relea
     carrier.stop(context.currentTime + pulseToSeconds(attack,bpm) + pulseToSeconds(sustain,bpm) + pulseToSeconds(release,bpm));
     modulatorOne.stop(context.currentTime + pulseToSeconds(oneattack,bpm) + pulseToSeconds(onesustain,bpm) + pulseToSeconds(onerelease,bpm));
     modulatorTwo.stop(context.currentTime + pulseToSeconds(twoattack,bpm) + pulseToSeconds(twosustain,bpm) + pulseToSeconds(tworelease,bpm));
+
+    carrier.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            carrier.disconnect();
+            modulatorOne.disconnect();
+            modulatorTwo.disconnect();
+            modOneEnv.disconnect();
+            modTwoEnv.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
 
     if(nextEvent){
         nextFunction(nextEvent);
@@ -2030,13 +2345,15 @@ function playSample(nextEvent, {bank = 0, sample = 0, rate = 1, envelope = 0, at
     //oscillator --> envelope --> panner --> destination (stereo output)
     source.connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'play_sample' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -2048,6 +2365,19 @@ function playSample(nextEvent, {bank = 0, sample = 0, rate = 1, envelope = 0, at
     source.start(context.currentTime);
     source.stop(context.currentTime + source.buffer.duration / rate); //self explanatory
     
+    source.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            source.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
+
     if(nextEvent){
         nextFunction(nextEvent);
     }
@@ -2159,13 +2489,15 @@ function loopSample(nextEvent, {bank = 0, sample = 0, rate = 1, duration = 4, en
     //oscillator --> envelope --> panner --> destination (stereo output)
     source.connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'loop_sample' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -2177,6 +2509,19 @@ function loopSample(nextEvent, {bank = 0, sample = 0, rate = 1, duration = 4, en
     source.start(context.currentTime);
     source.stop(context.currentTime + pulseToSeconds(duration,bpm)); //self explanatory
     
+    source.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            source.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
+
     if(nextEvent){
         nextFunction(nextEvent);
     }
@@ -2307,13 +2652,15 @@ function loopSampleLfo(nextEvent, {bank = 0, sample = 0, reverse = 0, top = 1.4,
     //oscillator --> envelope --> panner --> destination (stereo output)
     source.connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'loop_sample_lfo' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -2328,6 +2675,21 @@ function loopSampleLfo(nextEvent, {bank = 0, sample = 0, reverse = 0, top = 1.4,
     LFO.start(context.currentTime);
     LFO.stop(context.currentTime + pulseToSeconds(duration,bpm));
     
+    source.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            source.disconnect();
+            LFO.disconnect();
+            LFOdepth.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
+
     if(nextEvent){
         nextFunction(nextEvent);
     }
@@ -2441,13 +2803,15 @@ function slideSample(nextEvent, {bank = 2, sample = 6, startrate = 1, endrate = 
     //oscillator --> envelope --> panner --> destination (stereo output)
     source.connect(env).connect(panner).connect(context.destination);
 
+    let delay = null;
+    let feedBack = null;
     if(delaytime){//if delaytime is greater than 0
         if(feedback < 0 || feedback > 0.9){//we validate the feedback
             throw new Error("'feedback' value for 'slide_sample' MUST be between 0 and 0.9");
         }
-        const delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
+        delay = new DelayNode(context, { maxDelayTime : pulseToSeconds(delaytime,bpm) });//delay node
         delay.delayTime.value = pulseToSeconds(delaytime,bpm);//we assign the value
-        const feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
+        feedBack = new GainNode(context, { gain : amplitude * feedback });//and create a gain node for the effect
 
         //then we create the feedback loop
         env.connect(delay).connect(feedBack).connect(delay);
@@ -2502,6 +2866,19 @@ function slideSample(nextEvent, {bank = 2, sample = 6, startrate = 1, endrate = 
     source.start(context.currentTime);
     source.stop(context.currentTime + duration);
     
+    source.addEventListener("ended", () => {//cleanup after playing
+        setTimeout(() => {
+            source.disconnect();
+            env.disconnect();
+            panner.disconnect();
+
+            if(delay){
+                delay.disconnect();
+                feedBack.disconnect();
+            }
+        }, pulseToSeconds(delaytime,bpm) * 1000 * 10);//give the delay (in case it exists) room to breath before dying
+    });
+
     if(nextEvent){
         nextFunction(nextEvent);
     }
