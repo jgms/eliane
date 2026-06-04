@@ -1,6 +1,6 @@
 As with any other sound producing software, remember to **be careful with your ears**.
 
-You can find an online working version of *éliane* [here](https://jgms.github.io/eliane/). But the real fun starts once you download it and start making your own sounds, you only need a local web server, it runs the same in every browser, but to the best of my tests, it runs smoother on chrome and firefox. For the time being, *éliane* is not available for mobile devices.
+You can find an online working version of *éliane* [here](https://jgms.github.io/eliane/). But the real fun starts once you download it and start making your own sounds, you only need a local web server. It runs the same in every browser, but to the best of my tests, it runs smoother on chrome and firefox. For the time being, *éliane* is not available for mobile devices.
 
 If you want to see some code examples you can go [here](https://github.com/jgms/construye-un-castillo), and if you just want to listen to said examples, you can go [here](https://maravillosarealidad.bandcamp.com/album/construye-un-castillo-chalo-abajo).
 
