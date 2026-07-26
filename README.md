@@ -20,7 +20,7 @@ Although I made *éliane* to address **my very own creative needs**, I decided t
 
 ## the syntax
 
-*éliane*'s syntax is as simple as it gets, it only has **variables**, **function calls** and 5 keywords: **pulse**, **wait**, **repeat**, **if** and **else**. As I said above, it is heavily inspired by [Sonic Pi](https://sonic-pi.net/)'s, but simpler. There are a several things missing: complex/compound conditions/operations and my very much beloved ternary orperator, but I plan to implement them in the not so distant future. I'd also love to add syntax highlighting at some point.
+*éliane*'s syntax is as simple as it gets, it only has **variables**, **function calls** and 5 keywords: **pulse**, **wait**, **repeat**, **if** and **else**. As I said above, it is heavily inspired by [Sonic Pi](https://sonic-pi.net/)'s, but simpler. There are a several things missing: complex/compound conditions/operations and my very much beloved ternary operator.
 
 Before we continue, it's important to clarify what *éliane* is not: it **is not a fully fledged programming language** (I don't really know if that's even within my reach), it is just a way to sequence the calling of functions, changing their parameters and declaring global variables along the way, using a very simple syntax. With that out of the way, let's us explain *éliane*'s features one by one.
 
